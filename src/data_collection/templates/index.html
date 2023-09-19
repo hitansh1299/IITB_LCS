@@ -1,0 +1,44 @@
+<html>
+<head></head>
+<body>
+    <div id="form_container">
+      <form enctype="multipart/form-data" method=post>
+        <h1 style="position: center">File submission form</h1>
+        <label for="location">Enter the location of the data</label><br/>
+        <input id="location" type="text" name="location"><br/><br/>
+        <input id="custom_file_btn" name='file' type="file" accept=".xls,.xlsx"><br/><br/>
+        <input id="submit_btn" type="submit" value="Submit"><br/>
+      </form>
+    </div>
+</body>
+</html>
+
+<style>
+    body {
+        background-image: url("/static//Indian_Institute_of_Technology_Bombay_Logo.png");
+        padding: 0;
+        margin: 0;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-position: center center; 
+        }
+    #form_container {
+        background-color: rgba(255, 255, 255, .15);  
+        backdrop-filter: blur(7px);
+      width: 50%;
+      height: auto;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      -webkit-transform: translate(-50%,-50%);
+      -moz-transform: translate(-50%),-50%;
+      -ms-transform: translate(-50%,-50%);
+      -o-transform: translate(-50%,-50%);
+      transform: translate(-50%,-50%);
+      box-shadow: 8px 8px 20px black;
+    }
+    
+    form {
+      padding: 30px;
+    }
+</style>
