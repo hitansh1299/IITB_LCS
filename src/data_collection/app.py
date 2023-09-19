@@ -10,6 +10,10 @@ app = Flask(__name__,
             static_folder="./static")
 app.secret_key = "HITANSH123IITBLCS"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.add_url_rule(
+    "/uploads/<name>", endpoint="download_file", build_only=True
+)
+
 
 # @app.route('/')
 # def home():
@@ -42,7 +46,7 @@ def upload_file():
             return redirect(request.url)
         print('file valid')
         if file and allowed_file(file.filename):
-            filename = datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + request.form['location']+ "_" + secure_filename(file.filename)
+            filename = datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + request.form['location']+ "_" + request.form['type'] + "_" + secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             print('File saved successfully')
             # return redirect(url_for('download_file', name=filename))
@@ -51,6 +55,7 @@ def upload_file():
 @app.route('/uploads/<name>')
 def download_file(name):
     return send_from_directory(app.config["UPLOAD_FOLDER"], name)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

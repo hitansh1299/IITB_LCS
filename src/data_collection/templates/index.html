@@ -3,9 +3,12 @@
 <body>
     <div id="form_container">
       <form enctype="multipart/form-data" method=post>
-        <h1 style="position: center">File submission form</h1>
+        <h1 style="text-align: center;">Data Collection Portal</h1>
         <label for="location">Enter the location of the data</label><br/>
         <input id="location" type="text" name="location"><br/><br/>
+        <label for="type">Type of data</label><br/>
+        <input type="radio" name="type" value="reference">Reference<br/>
+        <input type="radio" name="type" value="LCS_PurpleAir">LCS (PurpleAir)<br/><br/>
         <input id="custom_file_btn" name='file' type="file" accept=".xls,.xlsx"><br/><br/>
         <input id="submit_btn" type="submit" value="Submit"><br/>
       </form>
@@ -25,7 +28,7 @@
     #form_container {
         background-color: rgba(255, 255, 255, .15);  
         backdrop-filter: blur(7px);
-      width: 50%;
+      width: 25%;
       height: auto;
       position: absolute;
       top: 50%;
