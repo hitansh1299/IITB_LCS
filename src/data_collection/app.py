@@ -1,10 +1,12 @@
-#create a basic flask app
-import os
 from flask import Flask, render_template, redirect, flash, request, url_for, send_from_directory, jsonify
 from werkzeug.utils import secure_filename
 from datetime import datetime
+from api import process_file
+import os
+
 UPLOAD_FOLDER = 'C:/Users/hitan/OneDrive/Desktop/MiniProjects/IITB_LCS/src/data_collection/uploads'
-ALLOWED_EXTENSIONS = {'xls','xlsx'}
+ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'csv', 'txt'}
+
 app = Flask(__name__,
             template_folder="./templates",
             static_folder="./static")
@@ -14,35 +16,40 @@ app.add_url_rule(
     "/uploads/<name>", endpoint="download_file", build_only=True
 )
 
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def generate_filename(params, filename):
+    filename = request.form['type'] + "_" + datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + \
+                request.form['location'] + "_" + \
+                "_" + secure_filename(filename)
+    return filename
+
+import json
+def log(filename: str):
+    with open(os.path.join(app.config['UPLOAD_FOLDER'], 'log.json'), 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    with open(os.path.join(app.config['UPLOAD_FOLDER'], 'log.json'), 'w', encoding='utf-8') as f:
+        data[filename] = request.form
+        json.dump(data,f, ensure_ascii=False, indent=4)
+
+        
+
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
-
-        if 'location' not in request.form:
-            print('No location part')
-            print(request.form)
-            return redirect(request.url)
-        else:
-            location = request.form['location']
-            print(location)
-
-        if 'file' not in request.files:
-            print('No file part')
-            return redirect(request.url)
         file = request.files['file']
-
         if file.filename == '':
             print('bad filename')
             return redirect(request.url)
         print('file valid')
         if file and allowed_file(file.filename):
-            filename = datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + request.form['location']+ "_" + request.form['type'] + "_" + secure_filename(file.filename)
+            filename = generate_filename(request.form, file.filename)
+            log(filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            process_file(filename=filename)
+            process_file(path=app.config['UPLOAD_FOLDER'], filename=filename)
             print('File saved successfully')
             # return redirect(url_for('download_file', name=filename))
     return render_template('index.html')
@@ -51,14 +58,18 @@ def upload_file():
 def download_file(name):
     return send_from_directory(app.config["UPLOAD_FOLDER"], name)
 
+
 @app.route('/listfiles', methods=['GET'])
 def list_files():
     data = os.listdir(app.config["UPLOAD_FOLDER"])
-    print(data)
-    return jsonify(data)
+    d = {str(x): f'/download_file/{str(x)}' for x in data}
+    # print(data)
+    return jsonify(d)
 
-def process_file(filename: str):
-    pass
+
+@app.route('/viewfiles', methods=['GET'])
+def view_files():
+    return render_template('viewfiles.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

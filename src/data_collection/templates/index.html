@@ -5,14 +5,22 @@
       <form enctype="multipart/form-data" method=post>
         <h1 style="text-align: center;">Data Collection Portal</h1>
         <label for="location">Enter the location of the data</label><br/>
-        <input id="location" type="text" name="location"><br/><br/>
+        <input id="location" type="text" name="location" required><br/><br/>
         <label for="type">Type of data</label><br/>
-        <input type="radio" name="type" value="reference">Reference<br/>
-        <input type="radio" name="type" value="LCS_PurpleAir">LCS (PurpleAir)<br/><br/>
-        <input id="custom_file_btn" name='file' type="file" accept=".xls,.xlsx"><br/><br/>
+        <input type="radio" name="type" value="reference" required>Reference<br/>
+        <input type="radio" name="type" value="partector" required>Naneos Partector<br/>
+        <input type="radio" name="type" value="purple_air" required>LCS (PurpleAir Flex II)<br/>
+        <input type="radio" name="type" value="n3" required>LCS (Alphasense OPC N3)<br/>
+        <input type="radio" name="type" value="atmos" required>LCS (UrbanSciences Atmos Respirer)<br/><br/>
+        <label for="start">Start Date and Time of Collection:</label>
+        <input type="datetime-local" id="start" name="start"><br/>
+        <label for="end">End Date and Time of Collection :</label>
+        <input type="datetime-local" id="end" name="end"><br/><br/>
+        <input id="custom_file_btn" name='file' type="file" accept=".xls,.xlsx,.csv, .txt"><br/><br/>
         <input id="submit_btn" type="submit" value="Submit"><br/>
       </form>
     </div>
+    <a href="/viewfiles"><button value="ALL FILES" style="position: realtive; transform:translate(80%,80%)"> ALL FILES </button></a>
 </body>
 </html>
 

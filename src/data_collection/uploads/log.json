@@ -1,0 +1,14 @@
+{
+    "partector_20231111_104258_CCD__8418_151304.txt": {
+        "location": "CCD",
+        "type": "partector",
+        "start": "2023-09-25T15:23",
+        "end": "2023-09-25T18:23"
+    },
+    "atmos_20231111_133106_CCD__Data.csv": {
+        "location": "CCD",
+        "type": "atmos",
+        "start": "2023-10-25T15:23",
+        "end": "2023-10-25T19:23"
+    }
+}

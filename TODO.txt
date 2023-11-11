@@ -1,0 +1,1 @@
+-> Add a hash to the database for rollbacks
