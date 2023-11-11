@@ -1,13 +1,37 @@
 {
-    "partector_20231111_104258_CCD__8418_151304.txt": {
+    "reference_20231111_214402_CCD__grimm.xlsx": {
+        "location": "CCD",
+        "type": "reference",
+        "start": "2023-10-25T15:23",
+        "end": "2023-10-25T19:23"
+    },
+    "partector_20231111_214514_CCD__8418_151304.txt": {
         "location": "CCD",
         "type": "partector",
-        "start": "2023-09-25T15:23",
-        "end": "2023-09-25T18:23"
+        "start": "2023-10-25T15:23",
+        "end": "2023-10-25T19:23"
     },
-    "atmos_20231111_133106_CCD__Data.csv": {
+    "purple_air_20231111_214539_CCD__20231025.csv": {
+        "location": "CCD",
+        "type": "purple_air",
+        "start": "2023-10-25T15:23",
+        "end": "2023-10-25T19:23"
+    },
+    "n3_20231111_215901_CCD__OPC2_010.CSV": {
+        "location": "CCD",
+        "type": "n3",
+        "start": "2023-10-25T15:23",
+        "end": "2023-10-25T19:23"
+    },
+    "atmos_20231111_220028_CCD__Data.csv": {
         "location": "CCD",
         "type": "atmos",
+        "start": "2023-10-25T15:23",
+        "end": "2023-10-25T19:23"
+    },
+    "reference_20231112_013800_CCD__ccd_grimm.xlsx": {
+        "location": "CCD",
+        "type": "reference",
         "start": "2023-10-25T15:23",
         "end": "2023-10-25T19:23"
     }

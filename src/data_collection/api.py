@@ -5,7 +5,7 @@ import os
 from datetime import datetime, timedelta
 import numpy as np
 import json
-from db_scripts import insert_df
+from db_scripts import insert_df, get_all_data
 
 '''
 #TODO: fix the date issue, reference sensor takes date as mm/dd/yyyy
@@ -22,7 +22,7 @@ def clean_reference(path:str, filename: str):
     print(d)
     d['date & time'] = 'timestamp'
     count_values.rename(columns=d, inplace=True)
-    count_values['location'] = filepath.split('/')[-1].split('_')[2]
+    count_values['location'] = get_metadata(path, filename)['location']
     count_values['timestamp'].dt.month_name()
 
     #Mass Values
@@ -31,7 +31,7 @@ def clean_reference(path:str, filename: str):
     d = dict(zip(mass_values.columns[1:], list(map(lambda x:  ('mass_')+re.sub('[\. ]', '_', x),mass_values.columns[1:]))))
     d['date & time'] = 'timestamp'
     mass_values.rename(columns=d, inplace=True)
-    mass_values['location'] = get_metadata(filename)['location']
+    mass_values['location'] = get_metadata(path, filename)['location']
     # mass_values.to_csv(filepath.replace('.xlsx', '') + '_mass_values_clean.csv', index=False)
 
     #PM Values
@@ -40,7 +40,7 @@ def clean_reference(path:str, filename: str):
                             'PM10 [ug/m3]':'pm10',
                             'PM2.5 [ug/m3]':'pm2_5',
                             'PM1 [ug/m3]':'pm1'}, inplace=True)
-    pm_values['location'] = filepath.split('/')[-1].split('_')[2]
+    pm_values['location'] = get_metadata(path, filename)['location']
     pm_values = pm_values['timestamp pm1 pm2_5 pm10 location'.split()]
     # pm_values.to_csv(filepath.replace('.xlsx', '') + '_pm_values_clean.csv', index=False)
     
@@ -89,6 +89,9 @@ def clean_n3(path:str, filename: str):
     df['timestamp'] = df['timestamp'].astype(dtype='datetime64[ms]').interpolate(method='linear')
     df.insert(0, 'timestamp', df.pop('timestamp'))
     df['filename'] = filename
+    df.rename(columns=dict(zip(df.columns.tolist(), [re.sub("[\(\[].*?[\)\]]", "", x) for x in df.columns.tolist()])), inplace=True)
+    df.rename(columns=dict(zip(df.columns.tolist(), [re.sub("#", "", x) for x in df.columns.tolist()])), inplace=True)
+    # df.drop('LaserStatus')
     df.to_csv(os.path.join(path, filename).replace('.csv', '') + '_clean.csv', index=False)
     insert_df(df, 'N3')
 
@@ -116,6 +119,14 @@ def clean_atmos(path: str, filename:str):
     df.rename(columns={'Time':'timestamp'}, inplace=True)
     df.to_csv(os.path.join(path, filename).replace('.csv', '') + '_clean.csv', index=False)
     insert_df(df, 'Atmos')
+
+def get_data(table):
+    import json
+    df = get_all_data(table)
+    # df = df[['timestamp',*df.drop(columns=['timestamp','filename','location']).columns,'location','filename']]
+    d = df.to_dict(orient='records')
+    return d
+
 
 
 def get_metadata(path:str, filename: str):

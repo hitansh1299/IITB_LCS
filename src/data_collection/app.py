@@ -1,10 +1,10 @@
 from flask import Flask, render_template, redirect, flash, request, url_for, send_from_directory, jsonify
 from werkzeug.utils import secure_filename
 from datetime import datetime
-from api import process_file
 import os
 
 UPLOAD_FOLDER = 'C:/Users/hitan/OneDrive/Desktop/MiniProjects/IITB_LCS/src/data_collection/uploads'
+DATABASE = 'C:/Users/hitan/OneDrive/Desktop/MiniProjects/IITB_LCS/Data/database.db'
 ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'csv', 'txt'}
 
 app = Flask(__name__,
@@ -12,9 +12,12 @@ app = Flask(__name__,
             static_folder="./static")
 app.secret_key = "HITANSH123IITBLCS"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['DATABASE'] = DATABASE
+# app.config['JSON_SORT_KEYS'] = False
 app.add_url_rule(
     "/uploads/<name>", endpoint="download_file", build_only=True
 )
+app.json.sort_keys = False
 
 
 def allowed_file(filename):
@@ -39,6 +42,7 @@ def log(filename: str):
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
+    from api import process_file
     if request.method == 'POST':
         file = request.files['file']
         if file.filename == '':
@@ -65,6 +69,15 @@ def list_files():
     d = {str(x): f'/download_file/{str(x)}' for x in data}
     # print(data)
     return jsonify(d)
+
+@app.route('/viewdata', methods=['GET'])
+def view_data():
+    return render_template('viewdata.html')
+
+@app.route('/getData/<table>', methods=['GET'])
+def getData(table):
+    from api import get_data
+    return jsonify(get_data(table))
 
 
 @app.route('/viewfiles', methods=['GET'])

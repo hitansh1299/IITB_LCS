@@ -1,0 +1,54 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Lato', sans-serif;
+  color: #202020;
+}
+
+p {
+  display: none;
+}
+
+table {
+  width: 1%;
+  border-collapse: collapse;
+  text-align: center;
+  overflow: hidden;
+  border-color: #202020;
+  white-space: nowrap;
+}
+
+td,
+th {
+  border: 1px solid #202020;
+  padding: 10px;
+}
+
+td {
+  border-left: 1px solid #202020;
+  border-right: 1px solid #202020;
+}
+
+th {
+  background-color: #4ECDC4;
+}
+
+tr {
+  /* background-color:black; */
+  /* td:not(:first-child),
+  th:not(:first-child),
+  td:not(.total-val) {
+    display: none;
+  } */
+
+  &:nth-of-type(odd){
+    background-color: white;
+  }
+
+  &:nth-of-type(even){
+    /* background-color: white; */
+    background-color: lightcyan;
+  }
+}
