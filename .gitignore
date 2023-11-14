@@ -161,5 +161,7 @@ src/test.ipynb
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 Data/IITB_LCS.pem
+Data/database.db
 Misc
 References
+src/data_collection/uploads

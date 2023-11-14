@@ -1,0 +1,36 @@
+<head>
+    <script type="module" src="static/charting.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.jquery.min.js"></script>
+    <link href="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.min.css" rel="stylesheet" />
+
+
+</head>
+
+<body>
+    <form enctype="multipart/form-data" method=post action="/getchartingdata" id="chart">
+        <label for="sensors">Choose sensors:</label>
+        <select data-placeholder="Select Sensors" multiple class="chosen-select" name="sensors">
+            <option value=""></option>
+            <option value="grimm">Grimm OPC</option>
+            <option value="partector">Partector</option>
+            <option value="purpleair">Purple Air Flex II</option>
+            <option value="n3">Alphasense OPC N3</option>
+            <option value="atmos">UrbanSciences Atmos</option>
+        </select>
+        FROM
+        <input type="datetime-local" id="start" name="start">
+        TO
+        <input type="datetime-local" id="end" name="end">
+        <input id="submit_btn" type="submit" value="Submit"><br />
+    </form>
+    <div id="chartcontainer"></div>
+
+    <script>
+        $(".chosen-select").chosen({width: "40%"}); 
+        data = fetch('/')
+        $(".chosen-select").chosen({
+            no_results_text: "Oops, nothing found!"
+          })
+    </script>   
+</body>

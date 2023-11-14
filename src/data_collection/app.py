@@ -74,10 +74,29 @@ def list_files():
 def view_data():
     return render_template('viewdata.html')
 
+@app.route('/getchartingdata', methods=['POST'])
+def get_charting_data():
+    from api import __get_charting_data__
+    req = dict(request.form.lists())
+    data = __get_charting_data__(sensors = req.get('sensors',[]), 
+                       start = req.get('start','01-01-2020')[0], 
+                       end = req.get('end','01-01-2020')[0])
+    print(data)
+    return redirect(url_for('plot_data'))
+
+@app.route('/plotdata', methods=['GET'])
+def plot_data():       
+    return render_template('plotdata.html')
+
 @app.route('/getData/<table>', methods=['GET'])
-def getData(table):
+def get_data(table):
     from api import get_data
     return jsonify(get_data(table))
+
+@app.route('deletefile/<filename>')
+def delete_file(filename):
+    from api import delete_file
+    delete_file(filename)
 
 
 @app.route('/viewfiles', methods=['GET'])

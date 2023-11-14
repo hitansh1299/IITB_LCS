@@ -1,63 +1,79 @@
 <html>
+
 <head>
    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
    <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
    <meta name="viewport" content="width=device-width, initial-scale=1">
    <script src="https://kit.fontawesome.com/0eab3f28b6.js" crossorigin="anonymous"></script>
 </head>
+
 <body>
-    <a href="{{ url_for('upload_file') }}"><h4><svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512" ><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><style>svg{fill:#000000}</style><path d="M575.8 255.5c0 18-15 32.1-32 32.1h-32l.7 160.2c0 2.7-.2 5.4-.5 8.1V472c0 22.1-17.9 40-40 40H456c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1H416 392c-22.1 0-40-17.9-40-40V448 384c0-17.7-14.3-32-32-32H256c-17.7 0-32 14.3-32 32v64 24c0 22.1-17.9 40-40 40H160 128.1c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2H104c-22.1 0-40-17.9-40-40V360c0-.9 0-1.9 .1-2.8V287.6H32c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"/></svg></h4></a>
+   <a href="{{ url_for('upload_file') }}">
+      <h4><svg xmlns="http://www.w3.org/2000/svg" height="1em"
+            viewBox="0 0 576 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+            <style>
+               svg {
+                  fill: #000000
+               }
+            </style>
+            <path
+               d="M575.8 255.5c0 18-15 32.1-32 32.1h-32l.7 160.2c0 2.7-.2 5.4-.5 8.1V472c0 22.1-17.9 40-40 40H456c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1H416 392c-22.1 0-40-17.9-40-40V448 384c0-17.7-14.3-32-32-32H256c-17.7 0-32 14.3-32 32v64 24c0 22.1-17.9 40-40 40H160 128.1c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2H104c-22.1 0-40-17.9-40-40V360c0-.9 0-1.9 .1-2.8V287.6H32c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z" />
+         </svg></h4>
+   </a>
+
    <button id="Grimm" onclick="button_clicked('Grimm')"> GRIMM </button>
    <button id="Partector" onclick="button_clicked('Partector')"> Partector </button>
    <button id="Partector" onclick="button_clicked('N3')"> Alphasense OPC-N3 </button>
    <button id="Partector" onclick="button_clicked('PurpleAir')"> PurpleAir Flex II </button>
    <button id="Partector" onclick="button_clicked('Atmos')"> UrbanSciences Atmos </button>
-   
-   <h3> Results Table: </h3> 
+
+   <h3> Results Table: </h3>
    <!-- <div id="container"></div> -->
-   <table id="table"></table>
-   
+   <div id="datatable">
+      <table id="table"></table>
+   </div>
+
    <script>
       // Function to convert JSON data to HTML table
       // window.onload = button_clicked;
       function convert(data) {
-        //Empty all child elements
-         $('#table').empty() 
+         //Empty all child elements
+         $('#table').empty()
 
          // Sample JSON data
          let jsonData = data
          console.log(data.PromiseResult)
-         
+
          // Get the container element where the table will be inserted
          // let container = $("#container");
-         
+
          // Create the table element
          let table = $("#table");
-         
+
          // Get the keys (column names) of the first object in the JSON data
          let cols = Object.keys(jsonData[0]);
-         
+
          // Create the header element
          let thead = $("<thead>");
          let tr = $("<tr class=table-headers>");
-         
+
          // Loop through the column names and create header cells
-         $.each(cols, function(i, item){
+         $.each(cols, function (i, item) {
             let th = $("<th>");
             th.text(item); // Set the column name as the text of the header cell
             tr.append(th); // Append the header cell to the header row
          });
          thead.append(tr); // Append the header row to the header
          table.append(thead) // Append the header to the table
-         
+
          let tbody = $("<tbody>")
          // Loop through the JSON data and create table rows
-         $.each(jsonData, function(i, item){
-         let tr = $("<tr>");
-            
+         $.each(jsonData, function (i, item) {
+            let tr = $("<tr>");
+
             // Get the values of the current object in the JSON data
             let vals = Object.values(item);
-            
+
             // Loop through the values and create table cells
             $.each(vals, (i, elem) => {
                let td = $("<td>");
@@ -67,36 +83,38 @@
             tbody.append(tr); // Append the table row to the table
          });
          table.append(tbody);
+         $("datatable").append(table)
          // container.append(table) // Append the table to the container element
       }
-      async function button_clicked(button){
-        console.log(button)
-        const response = await fetch('/getData/' + button)
-        const data = await response.json();
-        convert(data)
+      async function button_clicked(button) {
+         console.log(button)
+         const response = await fetch('/getData/' + button)
+         const data = await response.json();
+         convert(data)
       }
 
-      $(window).on('resize', function() {
-    
-        if ($(this).width() < 760) {
-           $('tr td:first-child').click(function(){
+      $(window).on('resize', function () {
 
-              $(this).siblings().css({'display': 'inline-block'});
+         if ($(this).width() < 760) {
+            $('tr td:first-child').click(function () {
 
-              var $this = $(this);
-              setTimeout(function(){
-              $this.siblings().css('transform', 'translateY(0)'); 
-             },0);
+               $(this).siblings().css({ 'display': 'inline-block' });
 
-              $('tr td:first-child').not($(this)).siblings().css({'display': 'none', 'transform': 'translateY(-9999px)'});
-          });  
-        } else if ($(this).width() > 760) {
+               var $this = $(this);
+               setTimeout(function () {
+                  $this.siblings().css('transform', 'translateY(0)');
+               }, 0);
+
+               $('tr td:first-child').not($(this)).siblings().css({ 'display': 'none', 'transform': 'translateY(-9999px)' });
+            });
+         } else if ($(this).width() > 760) {
             //unbind click : name is not clickable when screen is > 700px
-            $( "tr td:first-child").unbind( "click" );
+            $("tr td:first-child").unbind("click");
             //remove with jquery added styles
-            $('tr td:first-child').siblings().css({'display': '', 'transform': ''});
-        } 
+            $('tr td:first-child').siblings().css({ 'display': '', 'transform': '' });
+         }
       }).resize();
-   </script> 
- </body>
+   </script>
+</body>
+
 </html>

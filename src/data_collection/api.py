@@ -5,11 +5,15 @@ import os
 from datetime import datetime, timedelta
 import numpy as np
 import json
-from db_scripts import insert_df, get_all_data
+from db_scripts import insert_df, get_table_data, get_pm_data, delete_by_filename
 
-'''
-#TODO: fix the date issue, reference sensor takes date as mm/dd/yyyy
-'''
+# def __get_pm_column_name__(sensor:str, pm:str):
+#     if sensor == 'partector':
+#         pass
+#     elif sensor == 'grimm':
+#         pass
+#     elif 
+
 def clean_reference(path:str, filename: str):
     filepath = os.path.join(path, filename)
     refs = pd.read_excel(filepath, sheet_name=None,
@@ -45,7 +49,7 @@ def clean_reference(path:str, filename: str):
     # pm_values.to_csv(filepath.replace('.xlsx', '') + '_pm_values_clean.csv', index=False)
     
     df = pd.merge(count_values, mass_values, on=['timestamp', 'location']).merge(pm_values, on=['timestamp', 'location'])
-    df['filename'] = filepath.split('/')[-1]
+    df['filename'] = filepath.split('[/]')[-1]
     df[([*df.drop('location', axis=1).columns,'location'])].to_csv(filepath.replace('.xlsx', '') + '_clean.csv', index=False)
     insert_df(df, 'Grimm')
 
@@ -122,9 +126,27 @@ def clean_atmos(path: str, filename:str):
 
 def get_data(table):
     import json
-    df = get_all_data(table)
+    df = get_table_data(table)
     # df = df[['timestamp',*df.drop(columns=['timestamp','filename','location']).columns,'location','filename']]
     d = df.to_dict(orient='records')
+    return d
+
+def delete_file(file):
+    delete_by_filename(file)
+    
+
+'''
+@params:
+start and end must be strings of type YYYY-MM-DD HH:mm:ss
+'''
+def __get_charting_data__(sensors: str, start: str, end: str):
+    if not start: start = '2020-01-01'
+    if not end: end = '2100-01-01'
+    column = 'pm2_5'
+    start = start.replace('T',' ')
+    end = end.replace('T',' ')
+    d = {}
+    d['PM2.5'] = get_pm_data('Grimm', column, start=start, end=end).to_dict(orient='list')[column]
     return d
 
 
