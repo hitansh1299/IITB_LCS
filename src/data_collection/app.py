@@ -2,10 +2,8 @@ from flask import Flask, render_template, redirect, flash, request, url_for, sen
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import os
+from config import UPLOAD_FOLDER, DATABASE, ALLOWED_EXTENSIONS
 
-UPLOAD_FOLDER = 'C:/Users/hitan/OneDrive/Desktop/MiniProjects/IITB_LCS/src/data_collection/uploads'
-DATABASE = 'C:/Users/hitan/OneDrive/Desktop/MiniProjects/IITB_LCS/Data/database.db'
-ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'csv', 'txt'}
 
 app = Flask(__name__,
             template_folder="./templates",
@@ -66,7 +64,7 @@ def download_file(name):
 @app.route('/listfiles', methods=['GET'])
 def list_files():
     data = os.listdir(app.config["UPLOAD_FOLDER"])
-    d = {str(x): f'/download_file/{str(x)}' for x in data}
+    d = {str(x): f'/download_file/{str(x)}' for x in filter(lambda x: x != 'log.json', data)}
     # print(data)
     return jsonify(d)
 
@@ -74,29 +72,33 @@ def list_files():
 def view_data():
     return render_template('viewdata.html')
 
-@app.route('/getchartingdata', methods=['POST'])
+@app.route('/getchartingdata', methods=['GET'])
 def get_charting_data():
     from api import __get_charting_data__
-    req = dict(request.form.lists())
+    req = dict(request.args.lists())
+    print('Printing request', req)
     data = __get_charting_data__(sensors = req.get('sensors',[]), 
-                       start = req.get('start','01-01-2020')[0], 
-                       end = req.get('end','01-01-2020')[0])
+                       start = req.get('start')[0], 
+                       end = req.get('end')[0])
     print(data)
-    return redirect(url_for('plot_data'))
+    return jsonify(data)
 
 @app.route('/plotdata', methods=['GET'])
 def plot_data():       
     return render_template('plotdata.html')
 
-@app.route('/getData/<table>', methods=['GET'])
-def get_data(table):
+@app.route('/getData/<table>/<raw>', methods=['GET'])
+def get_data(table, raw):
     from api import get_data
-    return jsonify(get_data(table))
+    return jsonify(get_data(table, raw=raw))
 
-@app.route('deletefile/<filename>')
+@app.route('/delete/<filename>')
 def delete_file(filename):
     from api import delete_file
+    print(filename)
     delete_file(filename)
+    return redirect(url_for('view_files'))
+    
 
 
 @app.route('/viewfiles', methods=['GET'])

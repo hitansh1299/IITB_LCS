@@ -23,10 +23,13 @@
 
    <button id="Grimm" onclick="button_clicked('Grimm')"> GRIMM </button>
    <button id="Partector" onclick="button_clicked('Partector')"> Partector </button>
-   <button id="Partector" onclick="button_clicked('N3')"> Alphasense OPC-N3 </button>
-   <button id="Partector" onclick="button_clicked('PurpleAir')"> PurpleAir Flex II </button>
-   <button id="Partector" onclick="button_clicked('Atmos')"> UrbanSciences Atmos </button>
-
+   <button id="N3" onclick="button_clicked('N3')"> Alphasense OPC-N3 </button>
+   <button id="PurpleAir" onclick="button_clicked('PurpleAir')"> PurpleAir Flex II </button>
+   <button id="Atmos" onclick="button_clicked('Atmos')"> UrbanSciences Atmos </button>
+   <input type="radio" name="raw" value="raw">
+   <label for="raw">Raw Data</label>
+   <input type="radio" name="raw" value="clean">
+   <label for="clean">Clean Data</label>
    <h3> Results Table: </h3>
    <!-- <div id="container"></div> -->
    <div id="datatable">
@@ -88,7 +91,7 @@
       }
       async function button_clicked(button) {
          console.log(button)
-         const response = await fetch('/getData/' + button)
+         const response = await fetch('/getData/' + button + '/' +$('input[name="raw"]:checked').val())
          const data = await response.json();
          convert(data)
       }

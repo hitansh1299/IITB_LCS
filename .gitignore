@@ -165,3 +165,5 @@ Data/database.db
 Misc
 References
 src/data_collection/uploads
+src/data_collection/test.ipynb
+*.csv

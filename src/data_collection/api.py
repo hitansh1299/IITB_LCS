@@ -6,13 +6,13 @@ from datetime import datetime, timedelta
 import numpy as np
 import json
 from db_scripts import insert_df, get_table_data, get_pm_data, delete_by_filename
+import config
+import threading
 
-# def __get_pm_column_name__(sensor:str, pm:str):
-#     if sensor == 'partector':
-#         pass
-#     elif sensor == 'grimm':
-#         pass
-#     elif 
+def __process_grimm__():
+    df['pm2.5'] = df['pm2_5']
+    df = df[['timestamp', 'pm2.5', 'pm1', 'pm10', 'filename', 'location']]
+    insert_df(df, 'clean_grimm')
 
 def clean_reference(path:str, filename: str):
     filepath = os.path.join(path, filename)
@@ -49,12 +49,20 @@ def clean_reference(path:str, filename: str):
     # pm_values.to_csv(filepath.replace('.xlsx', '') + '_pm_values_clean.csv', index=False)
     
     df = pd.merge(count_values, mass_values, on=['timestamp', 'location']).merge(pm_values, on=['timestamp', 'location'])
-    df['filename'] = filepath.split('[/]')[-1]
+    df['filename'] = filepath.split('/')[-1]
     df[([*df.drop('location', axis=1).columns,'location'])].to_csv(filepath.replace('.xlsx', '') + '_clean.csv', index=False)
+    threading.Thread(target=__process_grimm__, args=(df,)).start()
     insert_df(df, 'Grimm')
 
+def __process_purpleair__(df):
+    df['pm2.5'] = (df['pm2_5_cf_1'] + df['pm2_5_cf_1_b'])/2
+    df['pm1'] = (df['pm1_0_cf_1'] + df['pm1_0_cf_1_b'])/2
+    df['pm10'] = (df['pm10_0_cf_1'] + df['pm10_0_cf_1_b'])/2
+    df = df[['timestamp', 'pm2.5', 'pm1', 'pm10', 'filename', 'location']]
+    insert_df(df, 'clean_purpleair')
 
-def clean_purple_air(filepath: str):
+def clean_purple_air(path:str, filename:str):
+    filepath = os.path.join(path, filename)
     lcs_cols = ['timestamp','current_temp_f','current_humidity','current_dewpoint_f','pressure','adc','pm1_0_cf_1','pm2_5_cf_1','pm10_0_cf_1',
                 'pm1_0_atm','pm2_5_atm','pm10_0_atm','pm2_5_aqi_cf_1','pm2_5_aqi_atm','p_0_3_um','p_0_5_um','p_1_0_um','p_2_5_um','p_5_0_um','p_10_0_um','pm1_0_cf_1_b',
                 'pm2_5_cf_1_b','pm10_0_cf_1_b','pm1_0_atm_b','pm2_5_atm_b','pm10_0_atm_b','pm2_5_aqi_cf_1_b','pm2_5_aqi_atm_b','p_0_3_um_b','p_0_5_um_b','p_1_0_um_b','p_2_5_um_b','p_5_0_um_b','p_10_0_um_b','location']
@@ -78,11 +86,30 @@ def clean_purple_air(filepath: str):
     #remove all non numeric values
     numeric_cols = lcs.columns.drop(['timestamp','location'])
     lcs[numeric_cols] = lcs[numeric_cols].apply(pd.to_numeric, errors='coerce').fillna(0)
-    lcs.timestamp = lcs.timestamp = lcs.timestamp.dt.tz_localize(None).dt.floor('min')
-    lcs['filename'] = filepath.split('/')[-1]
-    lcs.to_csv(filepath.replace('.xlsx', '') + '_clean.csv', index=False) 
+    lcs.timestamp = lcs.timestamp = lcs.timestamp.dt.tz_localize(None).dt.round('S')
+    lcs['filename'] = filename
+    lcs['location'] = get_metadata(path,filename)['location']
+    filename = filepath.replace('.xlsx', '') + '_clean.csv'
+    lcs.to_csv(filename, index=False) 
     insert_df(lcs, 'PurpleAir')
+    threading.Thread(target=__process_purpleair__, args=(lcs,)).start() 
     # print(lcs.columns)
+
+def __process_n3__(df: pd.DataFrame):
+    filename, location = df['filename'][0], df['location'][0]
+    df.drop(columns=['filename','location'], inplace=True)
+    df['pm2.5'] = df['PM_2.500']
+    df['pm1'] = df['PM_1.000']
+    df['pm10'] = df['PM_10.000']
+    df = df[['timestamp', 'pm2.5', 'pm1', 'pm10']]
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    df.set_index('timestamp', inplace=True)
+    df = df.resample('2T').mean()
+    df.reset_index(inplace=True)
+    df['filename'] = filename
+    df['location'] = location
+    print(df)
+    insert_df(df, 'clean_n3')
 
 def clean_n3(path:str, filename: str):
     # filepath = '../Data/CCD 25.10.2023/OPC2_010.CSV'
@@ -91,13 +118,18 @@ def clean_n3(path:str, filename: str):
     df.at[0, 'timestamp'] = datetime.strptime(get_metadata(path, filename)['start'], '%Y-%m-%dT%H:%M')
     df.at[df.index.max(), 'timestamp'] = datetime.strptime(get_metadata(path, filename)['end'], '%Y-%m-%dT%H:%M')
     df['timestamp'] = df['timestamp'].astype(dtype='datetime64[ms]').interpolate(method='linear')
+    df['timestamp'] = df['timestamp'].dt.round('S')
     df.insert(0, 'timestamp', df.pop('timestamp'))
     df['filename'] = filename
+    df['location']  = get_metadata(path,filename)['location']
     df.rename(columns=dict(zip(df.columns.tolist(), [re.sub("[\(\[].*?[\)\]]", "", x) for x in df.columns.tolist()])), inplace=True)
     df.rename(columns=dict(zip(df.columns.tolist(), [re.sub("#", "", x) for x in df.columns.tolist()])), inplace=True)
     # df.drop('LaserStatus')
     df.to_csv(os.path.join(path, filename).replace('.csv', '') + '_clean.csv', index=False)
     insert_df(df, 'N3')
+    threading.Thread(target=__process_n3__, args=(df,)).start()
+    
+    # print(df['PM_2.500'])
 
 def clean_partector(path: str, filename: str):
     filepath = os.path.join(path, filename)
@@ -109,6 +141,20 @@ def clean_partector(path: str, filename: str):
     df['filename'] = filename
     df.to_csv(os.path.join(path, filename).replace('.txt', '') + '_clean.csv', index=False)
     insert_df(df, 'Partector')
+
+def __process_atmos__(df):
+    #Using the ALT method (the same one in PurpleAir) to figure out PM values
+    #https://sci-hub.se/https://doi.org/10.1016/j.atmosenv.2021.118432
+    #Coeffs: 0.00030418	0.0018512	0.02069706	0.023140015	0.185120122
+
+    df['pm2.5'] = df['PM_2.500']
+    df['pm1'] = df['PM_1.000']
+    df['pm10'] = df['PM_10.000']
+    df = df[['timestamp', 'pm2.5', 'pm1', 'pm10', 'filename', 'location']]
+    print('Cleaned DF')
+    print(df)
+    insert_df(df, 'clean_purpleair')
+
 
 def clean_atmos(path: str, filename:str):
     filepath = os.path.join(path, filename)
@@ -124,29 +170,73 @@ def clean_atmos(path: str, filename:str):
     df.to_csv(os.path.join(path, filename).replace('.csv', '') + '_clean.csv', index=False)
     insert_df(df, 'Atmos')
 
-def get_data(table):
-    import json
+def get_data(table, raw):
+
+    if raw == 'clean':
+        sensor_tables = {
+            'PurpleAir':'clean_purpleair',
+            'N3':'clean_n3',
+            'Grimm':'clean_grimm',
+            'Partector':'Partector',
+            'Atmos':'Atmos'
+        }
+
+        table = sensor_tables[table]
     df = get_table_data(table)
-    # df = df[['timestamp',*df.drop(columns=['timestamp','filename','location']).columns,'location','filename']]
     d = df.to_dict(orient='records')
     return d
 
 def delete_file(file):
     delete_by_filename(file)
+    os.remove(os.path.join(config.UPLOAD_FOLDER, file))
+    
     
 
 '''
 @params:
 start and end must be strings of type YYYY-MM-DD HH:mm:ss
 '''
-def __get_charting_data__(sensors: str, start: str, end: str):
+
+def __get_sensor_charting_data__(sensor: str, start: str, end: str):
+    
+    columns = {
+        'PurpleAir':'p_2_5_um',
+        'N3':'"PM_2.500"',
+        'Grimm':'pm2_5'
+    }
+    if sensor.startswith('clean'):
+        column = '"pm2.5"'
+    else:
+        column = columns[sensor]
+    df = get_pm_data(sensor, column, start=start, end=end)
+    df.rename(columns={column.replace('"',''):'PM2.5'}, inplace=True)
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    time_diff = df['timestamp'].diff()
+    split_indices = (abs(time_diff) > pd.Timedelta(minutes=10)) 
+    split_indices = split_indices.loc[split_indices == True]
+    df['timestamp'] = df.timestamp.dt.strftime('%Y-%m-%d %H:%M:%S')
+    split_dataframes = [df.iloc[i:j] for i, j in zip([0] + split_indices.index.tolist(), split_indices.index.tolist() + [None])]
+    return [df.to_dict(orient='list') for df in split_dataframes]
+
+
+def __get_charting_data__(sensors: list, start: str, end: str):
+    sensor_tables = {
+        'PurpleAir':'clean_purpleair',
+        'N3':'clean_n3',
+        'Grimm':'clean_grimm',
+        'Partector':'Partector',
+        'Atmos':'Atmos'
+    }
     if not start: start = '2020-01-01'
     if not end: end = '2100-01-01'
-    column = 'pm2_5'
     start = start.replace('T',' ')
     end = end.replace('T',' ')
+    if not sensors:
+        return {}
     d = {}
-    d['PM2.5'] = get_pm_data('Grimm', column, start=start, end=end).to_dict(orient='list')[column]
+    for sensor in sensors:
+        sensor = sensor_tables[sensor]
+        d[sensor] = __get_sensor_charting_data__(sensor, start=start, end=end)
     return d
 
 
@@ -157,9 +247,8 @@ def get_metadata(path:str, filename: str):
     return metadata[filename]
 
 def process_file(path:str, filename: str):
-    filepath = os.path.join(path, filename)
     if "purple_air" in filename:
-        clean_purple_air(filepath=filepath)
+        clean_purple_air(path = path, filename=filename)
     elif "reference" in filename:
         clean_reference(path = path, filename=filename)
     elif "n3" in filename:
