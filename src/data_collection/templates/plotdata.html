@@ -43,16 +43,14 @@
             no_results_text: "Oops, nothing found!"
           })
         //import {chartData} from "static/charting.js"
-        
-      
-      
-
     </script>   
     <script type="module">   
-        import {chartData} from "../static/charting.js"     
+        import {chartData} from "/assets/js/charting.js"     
         $('#submit_btn').click(function(){
             console.log('CLICKED')
             chartData($('#chartForm').serialize())
         })
     </script>
+
+    
 </body>

@@ -9,7 +9,7 @@ from db_scripts import insert_df, get_table_data, get_pm_data, delete_by_filenam
 import config
 import threading
 
-def __process_grimm__():
+def __process_grimm__(df):
     df['pm2.5'] = df['pm2_5']
     df = df[['timestamp', 'pm2.5', 'pm1', 'pm10', 'filename', 'location']]
     insert_df(df, 'clean_grimm')
@@ -51,8 +51,8 @@ def clean_reference(path:str, filename: str):
     df = pd.merge(count_values, mass_values, on=['timestamp', 'location']).merge(pm_values, on=['timestamp', 'location'])
     df['filename'] = filepath.split('/')[-1]
     df[([*df.drop('location', axis=1).columns,'location'])].to_csv(filepath.replace('.xlsx', '') + '_clean.csv', index=False)
-    threading.Thread(target=__process_grimm__, args=(df,)).start()
     insert_df(df, 'Grimm')
+    threading.Thread(target=__process_grimm__, args=(df,)).start()
 
 def __process_purpleair__(df):
     df['pm2.5'] = (df['pm2_5_cf_1'] + df['pm2_5_cf_1_b'])/2
@@ -146,14 +146,17 @@ def __process_atmos__(df):
     #Using the ALT method (the same one in PurpleAir) to figure out PM values
     #https://sci-hub.se/https://doi.org/10.1016/j.atmosenv.2021.118432
     #Coeffs: 0.00030418	0.0018512	0.02069706	0.023140015	0.185120122
-
-    df['pm2.5'] = df['PM_2.500']
-    df['pm1'] = df['PM_1.000']
-    df['pm10'] = df['PM_10.000']
-    df = df[['timestamp', 'pm2.5', 'pm1', 'pm10', 'filename', 'location']]
+    filename, location = df['filename'][0], df['location'][0]
+    df['pm2.5'] = df['PM_1_CNC']
+    df['pm1'] = df['PM_2.5_CNC']
+    df['pm10'] = df['PM_10_CNC']
+    df = df[['timestamp', 'pm2.5', 'pm1', 'pm10']]
+    df = df.groupby('timestamp')[['pm2.5', 'pm1', 'pm10']].mean().reset_index()
+    df['filename'] = filename
+    df['location'] = location
     print('Cleaned DF')
     print(df)
-    insert_df(df, 'clean_purpleair')
+    insert_df(df, 'clean_atmos')
 
 
 def clean_atmos(path: str, filename:str):
@@ -161,24 +164,32 @@ def clean_atmos(path: str, filename:str):
     df = pd.read_csv(filepath,parse_dates=True, date_format='%m/%d/%YT%H:%M:%S')
     df = df[df.Time != '85/165/20165T25:165:00']
     df['Time'] = pd.to_datetime(df['Time'])
-    start = datetime.strptime(get_metadata(path, filename)['start'], '%Y-%m-%dT%H:%M')
-    end = datetime.strptime(get_metadata(path, filename)['end'], '%Y-%m-%dT%H:%M')
+    try:
+        start = datetime.strptime(get_metadata(path, filename)['start'], '%Y-%m-%dT%H:%M')
+    except ValueError as e:
+        start = datetime.strptime('2020-01-01T00:00', '%Y-%m-%dT%H:%M')
+    
+    try:
+        end = datetime.strptime(get_metadata(path, filename)['end'], '%Y-%m-%dT%H:%M')
+    except ValueError as e:
+        end = datetime.strptime('2030-01-01T00:00', '%Y-%m-%dT%H:%M')
     df = df[(df['Time'] >= start) & (df['Time'] <= end)]
     df['location'] = get_metadata(path,filename)['location']
     df['filename'] = filename
     df.rename(columns={'Time':'timestamp'}, inplace=True)
     df.to_csv(os.path.join(path, filename).replace('.csv', '') + '_clean.csv', index=False)
     insert_df(df, 'Atmos')
+    threading.Thread(target=__process_atmos__, args=(df,)).start()
 
 def get_data(table, raw):
 
-    if raw == 'clean':
+    if raw != 'raw':
         sensor_tables = {
             'PurpleAir':'clean_purpleair',
             'N3':'clean_n3',
             'Grimm':'clean_grimm',
             'Partector':'Partector',
-            'Atmos':'Atmos'
+            'Atmos':'clean_atmos'
         }
 
         table = sensor_tables[table]
@@ -189,6 +200,10 @@ def get_data(table, raw):
 def delete_file(file):
     delete_by_filename(file)
     os.remove(os.path.join(config.UPLOAD_FOLDER, file))
+    try:
+        os.remove(os.path.join(config.UPLOAD_FOLDER, file.replace('.'+file.split('.')[-1], '_clean.csv')))
+    except FileNotFoundError as e:
+        pass
     
     
 
@@ -196,7 +211,6 @@ def delete_file(file):
 @params:
 start and end must be strings of type YYYY-MM-DD HH:mm:ss
 '''
-
 def __get_sensor_charting_data__(sensor: str, start: str, end: str):
     
     columns = {
@@ -225,7 +239,7 @@ def __get_charting_data__(sensors: list, start: str, end: str):
         'N3':'clean_n3',
         'Grimm':'clean_grimm',
         'Partector':'Partector',
-        'Atmos':'Atmos'
+        'Atmos':'clean_atmos'
     }
     if not start: start = '2020-01-01'
     if not end: end = '2100-01-01'

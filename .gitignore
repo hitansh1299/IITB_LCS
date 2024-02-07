@@ -166,4 +166,7 @@ Misc
 References
 src/data_collection/uploads
 src/data_collection/test.ipynb
+sleek-bootstrap/
+sleek-bootstrap/*
 *.csv
+src/data_collection/static/assets/img/elements/cc4a.jpg

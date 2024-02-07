@@ -1,0 +1,33 @@
+{
+	"version": 1,
+	"allow_edit": true,
+	"plugins": [],
+	"panes": [
+		{
+			"title": "PM2.5",
+			"width": 1,
+			"row": {
+				"2": 1,
+				"3": 1,
+				"4": 1
+			},
+			"col": {
+				"2": 1,
+				"3": 1,
+				"4": 1
+			},
+			"col_width": 4,
+			"widgets": [
+				{
+					"type": "html",
+					"settings": {
+						"html": "<meta charset=\"utf-8\" />\n<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\" />\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n<title>IITB LCS Project Data Collection Portal</title>\n<script src=\"https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.jquery.min.js\"></script>\n<link href=\"https://cdn.jsdelivr.net/gh/harvesthq/chosen@gh-pages/chosen.min.css\" rel=\"stylesheet\" />\n<script src='https://cdn.plot.ly/plotly-2.27.0.min.js'></script> \n<div>\n    <form enctype=\"multipart/form-data\" id=\"chartForm\">\n        <label for=\"sensors\">Choose sensors:</label>\n        <select data-placeholder=\"Select Sensors\" multiple class=\"chosen-select\" name=\"sensors\" id=\"sensors\">\n            <option value=\"\"></option>\n            <option value=\"Grimm\">Grimm OPC</option>\n            <option value=\"Partector\">Partector</option>\n            <option value=\"PurpleAir\">Purple Air Flex II</option>\n            <option value=\"N3\">Alphasense OPC N3</option>\n            <option value=\"Atmos\">UrbanSciences Atmos</option>\n        </select>\n        FROM\n        <input type=\"datetime-local\" id=\"start\" name=\"start\">\n        TO\n        <input type=\"datetime-local\" id=\"end\" name=\"end\">\n        <button type=\"button\" id=\"submit_btn\" value=\"Submit\">SUBMIT</button><br />\n\n        <script>\n            $('#start').attr('value', new Date().toISOString().split('T')[0] + 'T00:00');\n            $('#end').attr('value', new Date().toISOString().split('T')[0] + 'T00:00');\n        </script>\n    </form>\n</div>\n\n<script>\n    $(\".chosen-select\").chosen({ width: \"40%\" });\n    $(\".chosen-select\").chosen({\n        no_results_text: \"Oops, nothing found!\"\n    })\n</script>\n<script type=\"module\">\n    import { chartData } from \"/assets/js/charting.js\"\n    console.log('Charting data')\n    $('#submit_btn').click(function () {\n        console.log('CLICKED');\n        chartData($('#chartForm').serialize());\n    })\n</script>",
+						"height": 10
+					}
+				}
+			]
+		}
+	],
+	"datasources": [],
+	"columns": 4
+}

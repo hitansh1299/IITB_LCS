@@ -1,1 +1,3 @@
--> Add a hash to the database for rollbacks
+-> Temperature and Humidity in clean database, Temp and RH for each clean table
+-> Convert all local files to CDN??
+

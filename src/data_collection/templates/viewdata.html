@@ -89,6 +89,7 @@
          $("datatable").append(table)
          // container.append(table) // Append the table to the container element
       }
+      
       async function button_clicked(button) {
          console.log(button)
          const response = await fetch('/getData/' + button + '/' +$('input[name="raw"]:checked').val())

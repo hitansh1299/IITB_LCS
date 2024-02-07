@@ -3,11 +3,18 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 import os
 from config import UPLOAD_FOLDER, DATABASE, ALLOWED_EXTENSIONS
-
+from flask_cors import cross_origin
 
 app = Flask(__name__,
             template_folder="./templates",
-            static_folder="./static")
+            static_folder="./static/assets/",
+            static_url_path='/assets/')
+
+# app = Flask(__name__,
+#             template_folder="./templates",
+#             static_folder="./static/",
+#             static_url_path='/static')
+
 app.secret_key = "HITANSH123IITBLCS"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['DATABASE'] = DATABASE
@@ -27,7 +34,7 @@ def generate_filename(params, filename):
                 request.form['location'] + "_" + \
                 "_" + secure_filename(filename)
     return filename
-
+ 
 import json
 def log(filename: str):
     with open(os.path.join(app.config['UPLOAD_FOLDER'], 'log.json'), 'r', encoding='utf-8') as f:
@@ -38,7 +45,7 @@ def log(filename: str):
 
         
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/fileupload', methods=['GET', 'POST'])
 def upload_file():
     from api import process_file
     if request.method == 'POST':
@@ -54,7 +61,10 @@ def upload_file():
             process_file(path=app.config['UPLOAD_FOLDER'], filename=filename)
             print('File saved successfully')
             # return redirect(url_for('download_file', name=filename))
-    return render_template('index.html')
+    
+
+    return render_template('upload_file.html')
+    
 
 @app.route('/download_file/<name>')
 def download_file(name):
@@ -70,22 +80,28 @@ def list_files():
 
 @app.route('/viewdata', methods=['GET'])
 def view_data():
-    return render_template('viewdata.html')
+    # return render_template('viewdata.html')
+    return render_template('datatable.html')
 
 @app.route('/getchartingdata', methods=['GET'])
+@cross_origin()
 def get_charting_data():
     from api import __get_charting_data__
     req = dict(request.args.lists())
+        
     print('Printing request', req)
     data = __get_charting_data__(sensors = req.get('sensors',[]), 
                        start = req.get('start')[0], 
                        end = req.get('end')[0])
     print(data)
-    return jsonify(data)
+    response = jsonify(data)
+    return response
 
 @app.route('/plotdata', methods=['GET'])
+@app.route('/', methods=['GET'])
 def plot_data():       
-    return render_template('plotdata.html')
+    # return render_template('plotdata.html')
+    return render_template('dashboard.html')
 
 @app.route('/getData/<table>/<raw>', methods=['GET'])
 def get_data(table, raw):
@@ -99,11 +115,10 @@ def delete_file(filename):
     delete_file(filename)
     return redirect(url_for('view_files'))
     
-
-
 @app.route('/viewfiles', methods=['GET'])
 def view_files():
-    return render_template('viewfiles.html')
+    # return render_template('viewfiles.html')
+    return render_template('filetable.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
