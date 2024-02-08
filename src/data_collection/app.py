@@ -84,7 +84,6 @@ def view_data():
     return render_template('datatable.html')
 
 @app.route('/getchartingdata', methods=['GET'])
-@cross_origin()
 def get_charting_data():
     from api import __get_charting_data__
     req = dict(request.args.lists())

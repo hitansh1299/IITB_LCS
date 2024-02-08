@@ -182,7 +182,6 @@ def clean_atmos(path: str, filename:str):
     threading.Thread(target=__process_atmos__, args=(df,)).start()
 
 def get_data(table, raw):
-
     if raw != 'raw':
         sensor_tables = {
             'PurpleAir':'clean_purpleair',
@@ -216,7 +215,8 @@ def __get_sensor_charting_data__(sensor: str, start: str, end: str):
     columns = {
         'PurpleAir':'p_2_5_um',
         'N3':'"PM_2.500"',
-        'Grimm':'pm2_5'
+        'Grimm':'pm2_5',
+        'Atmos':'PM_2.5_CNC',
     }
     if sensor.startswith('clean'):
         column = '"pm2.5"'
