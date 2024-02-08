@@ -89,7 +89,8 @@ def clean_purple_air(path:str, filename:str):
     lcs.timestamp = lcs.timestamp = lcs.timestamp.dt.tz_localize(None).dt.round('S')
     lcs['filename'] = filename
     lcs['location'] = get_metadata(path,filename)['location']
-    filename = filepath.replace('.xlsx', '') + '_clean.csv'
+    filename = filepath.replace('.xlsx', '') 
+    filename = filename.replace('.csv', '') + '_clean.csv'
     lcs.to_csv(filename, index=False) 
     insert_df(lcs, 'PurpleAir')
     threading.Thread(target=__process_purpleair__, args=(lcs,)).start() 

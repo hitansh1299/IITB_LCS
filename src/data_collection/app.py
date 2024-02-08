@@ -1,4 +1,5 @@
-from flask import Flask, render_template, redirect, flash, request, url_for, send_from_directory, jsonify
+import json
+from flask import Flask, render_template, redirect, flash, request, url_for, send_from_directory, jsonify, send_file
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import os
@@ -29,21 +30,21 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+
 def generate_filename(params, filename):
     filename = request.form['type'] + "_" + datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + \
-                request.form['location'] + "_" + \
-                "_" + secure_filename(filename)
+        request.form['location'] + "_" + \
+        "_" + secure_filename(filename)
     return filename
- 
-import json
+
+
 def log(filename: str):
     with open(os.path.join(app.config['UPLOAD_FOLDER'], 'log.json'), 'r', encoding='utf-8') as f:
         data = json.load(f)
     with open(os.path.join(app.config['UPLOAD_FOLDER'], 'log.json'), 'w', encoding='utf-8') as f:
         data[filename] = request.form
-        json.dump(data,f, ensure_ascii=False, indent=4)
+        json.dump(data, f, ensure_ascii=False, indent=4)
 
-        
 
 @app.route('/fileupload', methods=['GET', 'POST'])
 def upload_file():
@@ -61,14 +62,8 @@ def upload_file():
             process_file(path=app.config['UPLOAD_FOLDER'], filename=filename)
             print('File saved successfully')
             # return redirect(url_for('download_file', name=filename))
-    
 
     return render_template('upload_file.html')
-    
-
-@app.route('/download_file/<name>')
-def download_file(name):
-    return send_from_directory(app.config["UPLOAD_FOLDER"], name)
 
 
 @app.route('/listfiles', methods=['GET'])
@@ -78,34 +73,49 @@ def list_files():
     # print(data)
     return jsonify(d)
 
+
 @app.route('/viewdata', methods=['GET'])
 def view_data():
     # return render_template('viewdata.html')
     return render_template('datatable.html')
 
+
+@app.route('/download_file/<path:name>', methods=['GET'])
+def download_file(name):
+    print('Downloading file', name)
+    # folder = os.path.join(app.config['UPLOAD_FOLDER'], name)
+    # print(folder)
+    # Print CWD
+    print(os.getcwd())
+    return send_from_directory(f"{os.getcwd()}\\{app.config['UPLOAD_FOLDER']}", name, as_attachment=True)
+
+
 @app.route('/getchartingdata', methods=['GET'])
 def get_charting_data():
     from api import __get_charting_data__
     req = dict(request.args.lists())
-        
+
     print('Printing request', req)
-    data = __get_charting_data__(sensors = req.get('sensors',[]), 
-                       start = req.get('start')[0], 
-                       end = req.get('end')[0])
+    data = __get_charting_data__(sensors=req.get('sensors', []),
+                                 start=req.get('start')[0],
+                                 end=req.get('end')[0])
     print(data)
     response = jsonify(data)
     return response
 
+
 @app.route('/plotdata', methods=['GET'])
 @app.route('/', methods=['GET'])
-def plot_data():       
+def plot_data():
     # return render_template('plotdata.html')
     return render_template('dashboard.html')
+
 
 @app.route('/getData/<table>/<raw>', methods=['GET'])
 def get_data(table, raw):
     from api import get_data
     return jsonify(get_data(table, raw=raw))
+
 
 @app.route('/delete/<filename>')
 def delete_file(filename):
@@ -113,11 +123,13 @@ def delete_file(filename):
     print(filename)
     delete_file(filename)
     return redirect(url_for('view_files'))
-    
+
+
 @app.route('/viewfiles', methods=['GET'])
 def view_files():
     # return render_template('viewfiles.html')
     return render_template('filetable.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
