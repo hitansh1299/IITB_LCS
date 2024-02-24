@@ -172,3 +172,4 @@ src/data_collection/static/assets/img/elements/cc4a.jpg
 src\data_collection\test.ipynb
 src/models/scratch.ipynb
 Data/database.db
+src\data_collection\config.py
