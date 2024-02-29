@@ -177,3 +177,4 @@ src\commands.txt
 Data/database..db
 Data/database.db
 src/commands.txt
+src/data_collection/config.py
