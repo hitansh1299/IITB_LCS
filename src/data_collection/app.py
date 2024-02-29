@@ -96,9 +96,10 @@ def get_charting_data():
     req = dict(request.args.lists())
 
     print('Printing request', req)
-    data = __get_charting_data__(sensors=req.get('sensors', []),
+    data = __get_charting_data__(sensors=req.get('sensors',[]),
                                  start=req.get('start')[0],
-                                 end=req.get('end')[0])
+                                 end=req.get('end')[0],
+                                 pm=req.get('pm'))
     print(data)
     response = jsonify(data)
     return response

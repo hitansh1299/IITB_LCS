@@ -29,10 +29,16 @@ def get_table_data(table: str, start=None, end=None) -> pd.DataFrame:
         df = pd.read_sql_query(f'SELECT * FROM {table}', conn)
     return df
 
-def get_pm_data(table, column, start: str, end:str) -> pd.DataFrame:
+def get_pm_data(table, columns: str | list, start: str, end:str) -> pd.DataFrame:
+    if isinstance(columns, list):
+        # columns = '"pm2.5","pm1"'
+        columns = ','.join([f'"{x}"' for x in columns])
+        # columns = ','.join(columns)
+        pass
+    print(columns)
     with sqlite3.connect(CONN) as conn:
-        query = f"SELECT timestamp,{column} FROM {table} WHERE timestamp >= '{start}' AND timestamp <= '{end}'"
-        # print(query)
+        query = f"SELECT timestamp,{columns} FROM {table} WHERE timestamp >= '{start}' AND timestamp <= '{end}'"
+        print(query)
         df = pd.read_sql_query(query, conn)
     return df
     

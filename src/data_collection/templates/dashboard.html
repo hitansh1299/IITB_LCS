@@ -68,8 +68,14 @@
                     <input type="datetime-local" id="start" name="start">
                     <label for="end">TO</label>
                     <input type="datetime-local" id="end" name="end">
-                    <button type="button" id="submit_btn" value="Submit" class="btn btn-primary btn-sm">SUBMIT</button><br />
-            
+                    <!-- Add new radio button for pm2.5, pm10 and pm1.0 -->
+                    <br/><label for="pm">PM: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                    <select data-placeholder="Select PM" multiple class="chosen-select" name="pm" id="pm">
+                      <option value="pm2.5" selected>PM2.5</option>
+                      <option value="pm10">PM10</option>
+                      <option value="pm1">PM1.0</option>
+                    </select><br/><br/>
+                    <div class='text-center'><button type="button" id="submit_btn" value="Submit" class="btn btn-primary btn-sm text-center">SUBMIT</button></div>
                     <script>
                       $('#start').attr('value', new Date().toISOString().split('T')[0] + 'T00:00');
                       $('#end').attr('value', new Date().toISOString().split('T')[0] + 'T00:00')

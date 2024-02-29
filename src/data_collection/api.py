@@ -1,4 +1,3 @@
-
 import pandas as pd
 import re
 import os
@@ -211,20 +210,21 @@ def delete_file(file):
 @params:
 start and end must be strings of type YYYY-MM-DD HH:mm:ss
 '''
-def __get_sensor_charting_data__(sensor: str, start: str, end: str):
-    
+def __get_sensor_charting_data__(sensor: str, start: str, end: str, pm:list):
+    print('Getting charting data for', sensor, start, end, pm)
     columns = {
-        'PurpleAir':'p_2_5_um',
+        'PurpleAir':{'pm2.5':'p_2_5_um', 'pm1':'p_1_0_um', 'pm10':'p_10_0_um'},
         'N3':'"PM_2.500"',
         'Grimm':'pm2_5',
         'Atmos':'PM_2.5_CNC',
     }
     if sensor.startswith('clean'):
-        column = '"pm2.5"'
+        column = pm
     else:
         column = columns[sensor]
     df = get_pm_data(sensor, column, start=start, end=end)
-    df.rename(columns={column.replace('"',''):'PM2.5'}, inplace=True)
+    #remove single quotes and capitalize the column names except timestamp
+    df.rename(columns={x: x.replace('"', "").upper() for x in df.columns if x != 'timestamp'}, inplace=True)
     df['timestamp'] = pd.to_datetime(df['timestamp'])
     time_diff = df['timestamp'].diff()
     split_indices = (abs(time_diff) > pd.Timedelta(minutes=10)) 
@@ -234,7 +234,7 @@ def __get_sensor_charting_data__(sensor: str, start: str, end: str):
     return [df.to_dict(orient='list') for df in split_dataframes]
 
 
-def __get_charting_data__(sensors: list, start: str, end: str):
+def __get_charting_data__(sensors: list, start: str, end: str, pm:list):
     sensor_tables = {
         'PurpleAir':'clean_purpleair',
         'N3':'clean_n3',
@@ -251,7 +251,7 @@ def __get_charting_data__(sensors: list, start: str, end: str):
     d = {}
     for sensor in sensors:
         sensor = sensor_tables[sensor]
-        d[sensor] = __get_sensor_charting_data__(sensor, start=start, end=end)
+        d[sensor] = __get_sensor_charting_data__(sensor, start=start, end=end, pm=pm)
     return d
 
 
