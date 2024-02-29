@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The IITB_LCS project focuses on developing a revolutionary low-cost sensor (LCS) network for air quality (AQ) monitoring. Aimed at providing high spatio-temporal coverage at a fraction of traditional monitoring costs, this project addresses the critical need for accurate and reliable AQ data across heterogeneous environments.
+The IITB_LCS project focuses on developing a low-cost sensor (LCS) network for air quality (AQ) monitoring. Aimed at providing high spatio-temporal coverage at a fraction of traditional monitoring costs, this project addresses the critical need for accurate and reliable AQ data across heterogeneous environments.
 
 ## Features
 
@@ -29,12 +29,11 @@ pip install -r requirements.txt
 python app.py
 ```
 - For configuration details, refer to `config.py`.
-- Data analysis and calibration scripts can be found in `api.py`.
+- Data analysis and calibration scripts can be found under `models` and is under development.
 
 ## Contributing
 
-We welcome contributions from the community, including bug reports, feature requests, and code contributions. Please read `CONTRIBUTING.md` for guidelines on how to contribute.
-
+We welcome contributions from the community, including bug reports, feature requests, and code contributions. Please open a PR to help with the code.
 ## License
 
 This project is licensed under the MIT License - see the `LICENSE` file for details.
