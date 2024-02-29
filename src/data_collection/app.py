@@ -3,7 +3,7 @@ from flask import Flask, render_template, redirect, flash, request, url_for, sen
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import os
-from config import UPLOAD_FOLDER, DATABASE, ALLOWED_EXTENSIONS
+from config import UPLOAD_FOLDER, DATABASE, ALLOWED_EXTENSIONS, HOST, PORT
 from flask_cors import cross_origin
 
 app = Flask(__name__,
@@ -133,4 +133,4 @@ def view_files():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host=HOST, port=PORT)
