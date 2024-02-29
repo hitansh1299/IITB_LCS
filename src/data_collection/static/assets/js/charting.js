@@ -41,4 +41,5 @@ export async function chartData(serializedURL) {
 
     var config = { responsive: true }
     Plotly.newPlot('chartcontainer', chart, layout, config);
+    $('.nsewdrag').attr('style','fill: rgba(212,212,212,0.175); stroke-width: 0; pointer-events: all;');
 }

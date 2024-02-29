@@ -171,10 +171,10 @@ sleek-bootstrap/*
 src/data_collection/static/assets/img/elements/cc4a.jpg
 src\data_collection\test.ipynb
 src/models/scratch.ipynb
-Data/database.db
+# Data/database.db
 src\data_collection\config.py
 src\commands.txt
-Data/database..db
-Data/database.db
+# Data/database..db
+# Data/database.db
 src/commands.txt
 src/data_collection/config.py
