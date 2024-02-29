@@ -112,10 +112,10 @@ def plot_data():
     return render_template('dashboard.html')
 
 
-@app.route('/getData/<table>/<raw>', methods=['GET'])
-def get_data(table, raw):
-    from api import get_data
-    return jsonify(get_data(table, raw=raw))
+# @app.route('/getData/<table>/<raw>', methods=['GET'])
+# def get_data(table, raw):
+#     from api import get_data
+#     return jsonify(get_data(table, raw=raw))
 
 
 @app.route('/delete/<filename>')
