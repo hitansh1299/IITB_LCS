@@ -1,8 +1,12 @@
-# IITB_LCS: Low-Cost Air Quality Sensor Network
+# Low-Cost Air Quality Sensor Network
+
+### In Collaboration With
+<p align="center"><img src="src\data_collection\static\assets\Indian_Institute_of_Technology_Bombay_Logo.png" width="480" height="480"><br/>
+Indian Institute of Technology, Bombay </p>
 
 ## Introduction
 
-The IITB_LCS project focuses on developing a low-cost sensor (LCS) network for air quality (AQ) monitoring. Aimed at providing high spatio-temporal coverage at a fraction of traditional monitoring costs, this project addresses the critical need for accurate and reliable AQ data across heterogeneous environments.
+The project focuses on developing a low-cost sensor (LCS) network for air quality (AQ) monitoring. Aimed at providing high spatio-temporal coverage at a fraction of traditional monitoring costs, this project addresses the critical need for accurate and reliable AQ data across heterogeneous environments.
 
 ## Features
 
