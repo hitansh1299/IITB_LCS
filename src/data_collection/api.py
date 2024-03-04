@@ -4,7 +4,7 @@ import os
 from datetime import datetime, timedelta
 import numpy as np
 import json
-from db_scripts import insert_df, get_table_data, get_pm_data, delete_by_filename
+from db_scripts import insert_df, get_table_data, get_pm_data, delete_by_filename, insert_live_data, get_latest_data
 import config
 import threading
 
@@ -197,7 +197,8 @@ def get_data(table, raw):
     return d
 
 def delete_file(file):
-    delete_by_filename(file)
+    if get_metadata(config.UPLOAD_FOLDER, file):
+        delete_by_filename(file)
     os.remove(os.path.join(config.UPLOAD_FOLDER, file))
     try:
         os.remove(os.path.join(config.UPLOAD_FOLDER, file.replace('.'+file.split('.')[-1], '_clean.csv')))
@@ -254,12 +255,10 @@ def __get_charting_data__(sensors: list, start: str, end: str, pm:list):
         d[sensor] = __get_sensor_charting_data__(sensor, start=start, end=end, pm=pm)
     return d
 
-
-
 def get_metadata(path:str, filename: str):
     with open(os.path.join(path, 'log.json'), 'r') as f:
         metadata = json.load(f)
-    return metadata[filename]
+    return metadata.get(filename, {})
 
 def process_file(path:str, filename: str):
     if "purple_air" in filename:
@@ -272,4 +271,13 @@ def process_file(path:str, filename: str):
         clean_partector(path=path, filename=filename)
     elif 'atmos' in filename:
         clean_atmos(path=path, filename=filename)
-    
+
+def process_live_input(sensor, data): 
+    if sensor == 'N3':
+        insert_live_data('live_n3', data['timestamp'], data['pm1'], data['pm2.5'], data['pm10'], data['location'])
+
+def get_live_data(sensor):
+    if sensor == 'N3':
+        table = 'live_n3'
+        df = get_latest_data(table).tail(1).to_dict(orient='records')[0]
+    return df

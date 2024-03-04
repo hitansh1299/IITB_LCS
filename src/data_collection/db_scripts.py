@@ -6,7 +6,7 @@ from app import app
 CONN = app.config['DATABASE']
 
 #TODO: Make all queries SQL injection proof. https://realpython.com/prevent-python-sql-injection/
-
+#TODO: Make queries Injection safe by adding checks to API layer.
 def insert_df(df: pd.DataFrame, table:str):
     with sqlite3.connect(CONN) as conn:
         df.to_sql(table, conn, if_exists='append', index=False)
@@ -38,4 +38,13 @@ def get_pm_data(table, columns: str | list, start: str, end:str) -> pd.DataFrame
         print(query)
         df = pd.read_sql_query(query, conn)
     return df
-    
+
+def insert_live_data(table, timestamp, pm1, pm25, pm10, location):
+    with sqlite3.connect(CONN) as conn:
+        conn.cursor().execute(f'INSERT INTO {table} (timestamp, pm1, "pm2.5", pm10, location) VALUES (?,?,?,?,?)', (timestamp, pm1, pm25, pm10, location))
+
+def get_latest_data(table):
+    with sqlite3.connect(CONN) as conn:
+        query = f"SELECT * FROM {table} ORDER BY timestamp DESC LIMIT 1"
+        df = pd.read_sql_query(query, conn)
+    return df

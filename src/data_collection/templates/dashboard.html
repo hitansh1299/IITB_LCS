@@ -46,8 +46,6 @@
     <aside class="left-sidebar bg-sidebar">
       <div data-include="sidebar"></div>
     </aside>
-
-
     <div class="page-wrapper">
       <div class="content-wrapper">
         <div class="content">
@@ -93,6 +91,15 @@
               </div>
             </div>
           </div>
+          <div class="row">
+            <div class="col-4">
+              <div class=" card card-default">
+                <div class="card-body">
+                  <h3 id="N3_live">0</h3>
+                  <p>Last updated on:</p><p id="last_update"></p>
+                </div>
+              </div>
+          </div>
         </div> <!-- End Content -->
       </div> <!-- End Content Wrapper -->
     </div> <!-- End Page Wrapper -->
@@ -109,6 +116,16 @@
       console.log('CLICKED')
       chartData($('#chartForm').serialize())
     })
+    
+    async function getLiveN3() {
+      const response = await fetch('/getlive/N3')
+      const data = await response.json()
+      $('#N3_live').text(data['pm2.5']);
+      $('#last_update').text(data['timestamp']);
+    }
+
+
+    setInterval(getLiveN3, 1000);
   </script>
 </body>
 

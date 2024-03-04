@@ -112,10 +112,10 @@ def plot_data():
     return render_template('dashboard.html')
 
 
-# @app.route('/getData/<table>/<raw>', methods=['GET'])
-# def get_data(table, raw):
-#     from api import get_data
-#     return jsonify(get_data(table, raw=raw))
+@app.route('/getData/<table>/<raw>', methods=['GET'])
+def get_data(table, raw):
+    from api import get_data
+    return jsonify(get_data(table, raw=raw))
 
 
 @app.route('/delete/<filename>')
@@ -131,6 +131,18 @@ def view_files():
     # return render_template('viewfiles.html')
     return render_template('filetable.html')
 
+@app.route('/live/<sensor>', methods=['POST'])
+def live_input(sensor):
+    from api import process_live_input
+    # return render_template('viewfiles.html')
+    data = request.json
+    process_live_input(sensor, data)
+    return jsonify({'status': 'success', 'message': f'Live data for sensor {sensor} received successfully!'})
+
+@app.route('/getlive/<sensor>', methods=['GET'])
+def get_live_data(sensor):
+    from api import get_live_data
+    return jsonify(get_live_data(sensor))
 
 if __name__ == '__main__':
     app.run(debug=True, host=HOST, port=PORT)
