@@ -280,6 +280,9 @@ def get_live_data(sensor):
     if sensor == 'N3':
         table = 'live_n3'
         df = get_latest_data(table).tail(1).to_dict(orient='records')[0]
+    if sensor == 'Atmos':
+        table = 'live_atmos'
+        df = get_latest_data(table).tail(1).to_dict(orient='records')[0]
     return df
 
 def fetch_atmos_data():
