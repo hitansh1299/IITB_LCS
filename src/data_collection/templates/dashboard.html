@@ -10,6 +10,7 @@
     rel="stylesheet" />
   <link href="https://cdn.materialdesignicons.com/4.4.95/css/materialdesignicons.min.css" rel="stylesheet" />
   <link href="assets/plugins/simplebar/simplebar.css" rel="stylesheet" />
+  <link href="assets/css/gauge.css" rel="stylesheet" />
   <link href="assets/plugins/nprogress/nprogress.css" rel="stylesheet" />
   <link href='assets/plugins/jvectormap/jquery-jvectormap-2.0.3.css' rel='stylesheet'>
   <link href='assets/plugins/daterangepicker/daterangepicker.css' rel='stylesheet'>
@@ -28,6 +29,7 @@
   <script src='assets/plugins/daterangepicker/daterangepicker.js'></script>
   <script src='assets/js/date-range.js'></script>
   <script src="assets/js/sleek.js"></script>
+  <script src="assets/js/gauge.js"></script>
   <link href="assets/css/optionswitch.css" rel="stylesheet">
   <script src="assets/js/optionswitcher.js"></script>
   <script src="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.jquery.min.js"></script>
@@ -55,7 +57,8 @@
                 <div class="card-body">
                   <form enctype="multipart/form-data" id="chartForm" class="form-group">
                     <label for="sensors">Choose sensors:</label>
-                    <select data-placeholder="Select Sensors" multiple class="chosen-select" name="sensors" id="sensors">
+                    <select data-placeholder="Select Sensors" multiple class="chosen-select" name="sensors"
+                      id="sensors">
                       <option value=""></option>
                       <option value="Grimm">Grimm OPC</option>
                       <option value="PurpleAir">Purple Air Flex II</option>
@@ -67,13 +70,15 @@
                     <label for="end">TO</label>
                     <input type="datetime-local" id="end" name="end">
                     <!-- Add new radio button for pm2.5, pm10 and pm1.0 -->
-                    <br/><label for="pm">PM: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                    <br /><label for="pm">PM:
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
                     <select data-placeholder="Select PM" multiple class="chosen-select" name="pm" id="pm">
                       <option value="pm2.5" selected>PM2.5</option>
                       <option value="pm10">PM10</option>
                       <option value="pm1">PM1.0</option>
-                    </select><br/><br/>
-                    <div class='text-center'><button type="button" id="submit_btn" value="Submit" class="btn btn-primary btn-sm text-center">SUBMIT</button></div>
+                    </select><br /><br />
+                    <div class='text-center'><button type="button" id="submit_btn" value="Submit"
+                        class="btn btn-primary btn-sm text-center">SUBMIT</button></div>
                     <script>
                       $('#start').attr('value', new Date().toISOString().split('T')[0] + 'T00:00');
                       $('#end').attr('value', new Date().toISOString().split('T')[0] + 'T00:00')
@@ -96,37 +101,52 @@
               <div class=" card card-default">
                 <div class="card-body">
                   <h3 id="N3_live">0</h3>
-                  <p>Last updated on:</p><p id="last_update"></p>
+                  <p>Last updated on:</p>
+                  <p id="last_update"></p>
                 </div>
               </div>
-          </div>
-        </div> <!-- End Content -->
-      </div> <!-- End Content Wrapper -->
-    </div> <!-- End Page Wrapper -->
-  </div> <!-- End Wrapper -->
-  <script>
-    $(".chosen-select").chosen({ width: "40%" });
-    $(".chosen-select").chosen({
-      no_results_text: "Oops, nothing found!"
-    })
-  </script>
-  <script type="module">
-    import { chartData } from "/assets/js/charting.js"
-    $('#submit_btn').click(function () {
-      console.log('CLICKED')
-      chartData($('#chartForm').serialize())
-    })
-    
-    async function getLiveN3() {
-      const response = await fetch('/getlive/N3')
-      const data = await response.json()
-      $('#N3_live').text(data['pm2.5']);
-      $('#last_update').text(data['timestamp']);
-    }
+            </div>
 
+            <!-- TODO: Add a gauge for N3 live data -->
+            <!--<div class="col-4">
+              <div class=" card card-default">
+                 <div style="margin-bottom: 2rem;"><label for="set-aqi">Set AQI:</label><input type="range" id="set-aqi" min="0" max="500" value="10"></div> 
+                <div class="gauge">
+                  <div role="meter" aria-valuemin="0" aria-valuemax="500" aria-labelledby="meter-label">
+                    <div class="dial"><span class="aqi-num"></span><span>AQI</span>
+                      <div class="arrow"></div>
+                    </div>
+                  </div>
+                  <label class="label" id="meter-label">OPC N3 Live PM2.5 AQI</label>
+                </div> 
+              </div>
+            </div>-->
+          </div> <!-- End Content -->
+        </div> <!-- End Content Wrapper -->
+      </div> <!-- End Page Wrapper -->
+    </div> <!-- End Wrapper -->
+    <script>
+      $(".chosen-select").chosen({ width: "40%" });
+      $(".chosen-select").chosen({
+        no_results_text: "Oops, nothing found!"
+      })
+    </script>
+    <script type="module">
+      import { chartData } from "/assets/js/charting.js"
+      $('#submit_btn').click(function () {
+        console.log('CLICKED')
+        chartData($('#chartForm').serialize())
+      })
 
-    setInterval(getLiveN3, 1000);
-  </script>
+      async function getLiveN3() {
+        const response = await fetch('/getlive/N3')
+        const data = await response.json()
+        $('#N3_live').text(data['pm2.5']);
+        $('#last_update').text(data['timestamp']);
+        $()
+      }
+      setInterval(getLiveN3, 1000);
+    </script>
 </body>
 
 </html>

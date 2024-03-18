@@ -1,5 +1,5 @@
-UPLOAD_FOLDER = 'IITB_LCS\\src\\data_collection\\uploads'
-DATABASE = 'IITB_LCS\\Data\\database.db'
+UPLOAD_FOLDER = './IITB_LCS/src/data_collection/uploads'
+DATABASE = './IITB_LCS/Data/database.db'
 ALLOWED_EXTENSIONS = {'xls', 'xlsx', 'csv', 'txt'}
 HOST='0.0.0.0'
 PORT=8080

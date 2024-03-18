@@ -145,4 +145,10 @@ def get_live_data(sensor):
     return jsonify(get_live_data(sensor))
 
 if __name__ == '__main__':
-    app.run(debug=True, host=HOST, port=PORT)
+    from threading import Thread
+    from api import fetch_atmos_data
+    Thread(target=fetch_atmos_data).start()
+    app.run(debug=False, host=HOST, port=PORT)
+    
+    # from api import fetch_atmos_data
+

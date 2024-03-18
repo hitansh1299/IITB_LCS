@@ -39,9 +39,9 @@ def get_pm_data(table, columns: str | list, start: str, end:str) -> pd.DataFrame
         df = pd.read_sql_query(query, conn)
     return df
 
-def insert_live_data(table, timestamp, pm1, pm25, pm10, location):
+def insert_live_data(table, timestamp, pm1, pm25, pm10, temp, rh, location):
     with sqlite3.connect(CONN) as conn:
-        conn.cursor().execute(f'INSERT INTO {table} (timestamp, pm1, "pm2.5", pm10, location) VALUES (?,?,?,?,?)', (timestamp, pm1, pm25, pm10, location))
+        conn.cursor().execute(f'INSERT INTO {table} (timestamp, pm1, "pm2.5", pm10, temp, rh, location) VALUES (?,?,?,?,?,?,?)', (timestamp, pm1, pm25, pm10, temp, rh, location))
 
 def get_latest_data(table):
     with sqlite3.connect(CONN) as conn:
