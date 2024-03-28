@@ -87,8 +87,7 @@ def download_file(name):
     # print(folder)
     # Print CWD
     print(os.getcwd())
-    return send_from_directory(f"{os.getcwd()}\\{app.config['UPLOAD_FOLDER']}", name, as_attachment=True)
-
+    return send_from_directory(f"{os.getcwd()}/{app.config['UPLOAD_FOLDER']}", name, as_attachment=True)
 
 @app.route('/getchartingdata', methods=['GET'])
 def get_charting_data():

@@ -290,14 +290,15 @@ def fetch_atmos_data():
     import requests
     import pandas as pd
     from io import StringIO
+    import pytz
     import time
 
     while True:
-        time.sleep(60)
+        time.sleep(5)
         imei_id = ATMOS_IMEI
-
-        enddate = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
-        startdate = (datetime.now() - timedelta(minutes=1)).strftime('%Y-%m-%dT%H:%M:%S')
+        IST = pytz.timezone('Asia/Kolkata')
+        enddate = datetime.now(IST).strftime('%Y-%m-%dT%H:%M:%S')
+        startdate = (datetime.now(IST) - timedelta(minutes=1)).strftime('%Y-%m-%dT%H:%M:%S')
         print("FETCHING ATMOS DATA")
 
         # print(startdate, enddate)
