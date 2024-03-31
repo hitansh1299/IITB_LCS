@@ -297,7 +297,7 @@ def fetch_atmos_data():
         imei_id = ATMOS_IMEI
         IST = pytz.timezone('Asia/Kolkata')
         enddate = datetime.now(IST).strftime('%Y-%m-%dT%H:%M:%S')
-        startdate = (datetime.now(IST) - timedelta(minutes=1)).strftime('%Y-%m-%dT%H:%M:%S')
+        startdate = (datetime.now(IST) - timedelta(minutes=10)).strftime('%Y-%m-%dT%H:%M:%S')
         print("FETCHING ATMOS DATA")
 
         # print(startdate, enddate)
