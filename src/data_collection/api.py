@@ -294,7 +294,6 @@ def fetch_atmos_data():
     import time
 
     while True:
-        time.sleep(5)
         imei_id = ATMOS_IMEI
         IST = pytz.timezone('Asia/Kolkata')
         enddate = datetime.now(IST).strftime('%Y-%m-%dT%H:%M:%S')
@@ -313,10 +312,12 @@ def fetch_atmos_data():
         vals = pd.read_csv(StringIO(res.text)).sort_values(by='dt_time', ascending=False).fillna(value='NULL').to_dict(orient='records')[0]
         if vals['pm1cnc'] == 'NULL':
             print('NO ATMOS DATA FOR: ',vals['dt_time'])
+            time.sleep(60)
             continue
         print(vals)
         print(f"{{'lat':{vals['lat']}, 'lon':{vals['lon']}}}")
         insert_live_data('live_atmos', vals['dt_time'], vals['pm1cnc'], vals['pm2.5cnc'], vals['pm10cnc'], vals['temp'], vals['humidity'], f"{{'lat':{vals['lat']}, 'lon':{vals['lon']}}}")
+        time.sleep(60)
 
 
 
