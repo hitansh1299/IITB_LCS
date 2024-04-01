@@ -60,6 +60,7 @@
               <label class="gauge-label" id="meter-label">OPC N3 PM10</label>
             </div>
           </div>
+          <p class='text-center pb-6' id = 'last_update_n3'> LAST UPDATED ON: </p>
           <h2 class="text-center">Urban Sciences Atmos Live</h2>
           <div class="row">
             <div class="card card-default col gauge_container">
@@ -75,6 +76,7 @@
               <label class="gauge-label" id="meter-label">ATMOS PM10</label>
             </div>
           </div>
+          <p class='text-center pb-10' id = 'last_update_atmos'> LAST UPDATED ON: </p>
         </div>
       </div>
       <script>
@@ -85,11 +87,15 @@
       </script>
       <script type="module">
         import { updateDial } from './assets/js/gauge.js';
+
+
+        var options = {year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric'};
+
         async function getLiveN3() {
           const response = await fetch('/getlive/N3')
           await response.json().then(data => {
             $('#N3_live').text(data['pm2.5']);
-            $('#last_update_n3').text(data['timestamp']);
+            $('#last_update_n3').text('Last Updates On: ' + new Date(data['timestamp'].replace('T', ' ')).toLocaleDateString('en-US', options));
             updateDial(data['pm1'], 'n3_pm1');
             updateDial(data['pm2.5'], 'n3_pm25');
             updateDial(data['pm10'], 'n3_pm10');
@@ -100,14 +106,14 @@
           const response = await fetch('/getlive/Atmos')
           await response.json().then(data => {
             $('#Atmos_live').text(data['pm2.5']);
-            $('#last_update_atmos').text(data['timestamp']);
+            $('#last_update_atmos').text('Last Updated On: ' + new Date(data['timestamp']).toLocaleDateString('en-US', options));
             updateDial(data['pm1'], 'atmos_pm1');
             updateDial(data['pm2.5'], 'atmos_pm25');
             updateDial(data['pm10'], 'atmos_pm10');
           });
         }
 
-        setTimeout(getLiveAtmos, 2000);
+        setTimeout(getLiveAtmos(),2000);
 
         setInterval(getLiveN3, 1000);
         setInterval(getLiveAtmos, 10000);
