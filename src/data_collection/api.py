@@ -285,39 +285,6 @@ def get_live_data(sensor):
         df = get_latest_data(table).tail(1).to_dict(orient='records')[0]
     return df
 
-def fetch_atmos_data():
-    from config import ATMOS_IMEI, ATMOS_API_KEY
-    import requests
-    import pandas as pd
-    from io import StringIO
-    import pytz
-    import time
-
-    while True:
-        imei_id = ATMOS_IMEI
-        IST = pytz.timezone('Asia/Kolkata')
-        enddate = datetime.now(IST).strftime('%Y-%m-%dT%H:%M:%S')
-        startdate = (datetime.now(IST) - timedelta(minutes=10)).strftime('%Y-%m-%dT%H:%M:%S')
-        print("FETCHING ATMOS DATA")
-
-        # print(startdate, enddate)
-
-        avg_ref = 'mm'
-        avg_period = '1'
-        api_key = ATMOS_API_KEY
-
-        url = f"https://atmos.urbansciences.in/adp/v4/getDeviceDataParam/imei/{imei_id}/params/pm1cnc,pm2.5cnc,pm10cnc,temp,humidity,lat,lon/startdate/{startdate}/enddate/{enddate}/ts/{avg_ref}/avg/{avg_period}/api/{api_key}?gaps=1"
-
-        res = requests.get(url)
-        vals = pd.read_csv(StringIO(res.text)).sort_values(by='dt_time', ascending=False).fillna(value='NULL').to_dict(orient='records')[0]
-        if vals['pm1cnc'] == 'NULL':
-            print('NO ATMOS DATA FOR: ',vals['dt_time'])
-            time.sleep(60)
-            continue
-        print(vals)
-        print(f"{{'lat':{vals['lat']}, 'lon':{vals['lon']}}}")
-        insert_live_data('live_atmos', vals['dt_time'], vals['pm1cnc'], vals['pm2.5cnc'], vals['pm10cnc'], vals['temp'], vals['humidity'], f"{{'lat':{vals['lat']}, 'lon':{vals['lon']}}}")
-        time.sleep(60)
 
 
 

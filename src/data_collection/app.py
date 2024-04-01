@@ -110,6 +110,9 @@ def plot_data():
     # return render_template('plotdata.html')
     return render_template('dashboard.html')
 
+@app.route('/analysis', methods=['GET'])
+def analysis():
+    return render_template('analyse.html')
 
 @app.route('/getData/<table>/<raw>', methods=['GET'])
 def get_data(table, raw):
@@ -143,11 +146,11 @@ def get_live_data(sensor):
     from api import get_live_data
     return jsonify(get_live_data(sensor))
 
+
 if __name__ == '__main__':
     from threading import Thread
-    from api import fetch_atmos_data
+    from async_threads import fetch_atmos_data
     Thread(target=fetch_atmos_data).start()
     app.run(debug=False, host=HOST, port=PORT)
-    
     # from api import fetch_atmos_data
 
