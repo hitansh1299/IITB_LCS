@@ -1,5 +1,5 @@
 import json
-from flask import Flask, render_template, redirect, flash, request, url_for, send_from_directory, jsonify, send_file
+from flask import Flask, render_template, redirect, flash, request, url_for, send_from_directory, jsonify, send_file, Response
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import os
@@ -130,13 +130,26 @@ def delete_file(filename):
 
 @app.route('/viewfiles', methods=['GET'])
 def view_files():
-    # return render_template('viewfiles.html')
     return render_template('filetable.html')
 
 @app.route('/live/<sensor>', methods=['POST'])
 def live_input(sensor):
     from api import process_live_input
-    # return render_template('viewfiles.html')
+    if sensor == 'grimm':
+        from api import process_file
+        file = request.files['file']
+        if file.filename == '':
+            print('bad filename')
+            return redirect(request.url)
+        print('file valid')
+        if file and allowed_file(file.filename):
+            filename = generate_filename(request.form, file.filename)
+            log(filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            process_file(path=app.config['UPLOAD_FOLDER'], filename=filename)
+            print('File saved successfully')
+            return jsonify({'status': 'success', 'message': 'File uploaded successfully!'})
+        return Response(jsonify({'status': 'error', 'message': 'Invalid File Name!'}), status=402)
     data = request.json
     process_live_input(sensor, data)
     return jsonify({'status': 'success', 'message': f'Live data for sensor {sensor} received successfully!'})
@@ -145,7 +158,6 @@ def live_input(sensor):
 def get_live_data(sensor):
     from api import get_live_data
     return jsonify(get_live_data(sensor))
-
 
 if __name__ == '__main__':
     from threading import Thread

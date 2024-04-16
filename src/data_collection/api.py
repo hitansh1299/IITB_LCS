@@ -275,6 +275,9 @@ def process_file(path:str, filename: str):
 def process_live_input(sensor, data): 
     if sensor == 'N3':
         insert_live_data('live_n3', data['timestamp'], data['pm1'], data['pm2.5'], data['pm10'], data['temperature'], data['humidity'], data['location'])
+    if sensor == 'PurpleAir':
+        print(data)
+        # insert_live_data('live_purpleair', data['timestamp'], data['pm2.5'], data['pm1'], data['pm10'], data['location'])
 
 def get_live_data(sensor):
     if sensor == 'N3':
@@ -283,6 +286,9 @@ def get_live_data(sensor):
     if sensor == 'Atmos':
         table = 'live_atmos'
         df = get_latest_data(table).tail(1).to_dict(orient='records')[0]
+    if sensor == 'Grimm':
+        print('Grimm')
+        
     return df
 
 
