@@ -280,6 +280,7 @@ def process_live_input(sensor, data):
         # insert_live_data('live_purpleair', data['timestamp'], data['pm2.5'], data['pm1'], data['pm10'], data['location'])
 
 def get_live_data(sensor):
+    df = {}
     if sensor == 'N3':
         table = 'live_n3'
         df = get_latest_data(table).tail(1).to_dict(orient='records')[0]
@@ -287,8 +288,8 @@ def get_live_data(sensor):
         table = 'live_atmos'
         df = get_latest_data(table).tail(1).to_dict(orient='records')[0]
     if sensor == 'Grimm':
-        print('Grimm')
-        
+        table = 'clean_grimm'
+        df = get_latest_data(table).tail(1).to_dict(orient='records')[0]
     return df
 
 
