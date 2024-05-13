@@ -159,10 +159,15 @@ def get_live_data(sensor):
     from api import get_live_data
     return jsonify(get_live_data(sensor))
 
+@app.route('/getregressiondata', methods=['GET'])
+def get_regression_data():
+    from api import get_regression_data
+    return jsonify(get_regression_data())
+
 if __name__ == '__main__':
     from threading import Thread
     from async_threads import fetch_atmos_data
-    Thread(target=fetch_atmos_data).start()
-    app.run(debug=False, host=HOST, port=PORT)
+    # Thread(target=fetch_atmos_data).start()   
+    app.run(debug=True, host=HOST, port=PORT)
     # from api import fetch_atmos_data
 

@@ -4806,6 +4806,11 @@ input[type="button"].btn-block {
   margin-left: 0;
 }
 
+.square {
+  width: 30vw;
+  height: 30vw;
+}
+
 .card > .list-group {
   border-top: inherit;
   border-bottom: inherit;

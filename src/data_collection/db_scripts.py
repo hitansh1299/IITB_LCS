@@ -25,6 +25,11 @@ def delete_by_filename(filename):
         conn.execute(f'DELETE FROM clean_atmos WHERE filename LIKE "%{filename}%"')
 
 def get_table_data(table: str, start=None, end=None) -> pd.DataFrame:
+    if start and end:
+        with sqlite3.connect(CONN) as conn:
+            df = pd.read_sql_query(f'SELECT * FROM {table} WHERE timestamp >= "{start}" AND timestamp <= "{end}"', conn)
+        return df
+    
     with sqlite3.connect(CONN) as conn:
         df = pd.read_sql_query(f'SELECT * FROM {table}', conn)
     return df
@@ -43,8 +48,8 @@ def insert_live_data(table, timestamp, pm1, pm25, pm10, temp, rh, location):
     with sqlite3.connect(CONN) as conn:
         conn.cursor().execute(f'INSERT INTO {table} (timestamp, pm1, "pm2.5", pm10, temp, rh, location) VALUES (?,?,?,?,?,?,?)', (timestamp, pm1, pm25, pm10, temp, rh, location))
 
-def get_latest_data(table):
+def get_latest_datapoints(table, rows=1):
     with sqlite3.connect(CONN) as conn:
-        query = f"SELECT * FROM {table} ORDER BY timestamp DESC LIMIT 1"
+        query = f"SELECT * FROM {table} ORDER BY timestamp DESC LIMIT {rows}"
         df = pd.read_sql_query(query, conn)
     return df

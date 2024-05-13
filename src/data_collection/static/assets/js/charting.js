@@ -7,6 +7,13 @@ async function get_data(url) {
     return data
 }
 
+async function get_regression_data() {
+    const response = await fetch("/getregressiondata")
+    const data = await response.json();
+    console.log(data);
+    return data
+}
+
 /*
 @params:
 start: the start date and time
@@ -40,6 +47,90 @@ export async function chartData(serializedURL) {
     };
 
     var config = { responsive: true }
+    Plotly.newPlot('chartcontainer', chart, layout, config);
+    $('.nsewdrag').attr('style','fill: rgba(212,212,212,0.175); stroke-width: 0; pointer-events: all;');
+}
+
+export async function create_regression_plot() {
+    console.log("regression plot")
+    const rawdata = await get_regression_data()
+    var chart = []
+    var shapes = []
+    chart.push({x: rawdata['pm2.5_grimm'],
+                y: rawdata['pm2.5_purpleair'], 
+                mode: 'markers',
+                type: 'scatter', 
+                name: 'Purple Air Flex II<br>R^2 Score: ' + rawdata['params']['purpleair']['r2_score'],
+            color: 'red'})
+    shapes.push({
+                x0: rawdata['params']['purpleair']['x'][0],
+                y0: rawdata['params']['purpleair']['y'][0],
+                x1: rawdata['params']['purpleair']['x'][1],
+                y1: rawdata['params']['purpleair']['y'][1],  
+                type: 'line', 
+                name: 'Purple Air Flex II',
+                line: {color: 'blue'}
+                    })
+
+    
+    chart.push({x: rawdata['pm2.5_grimm'],
+                y: rawdata['pm2.5_n3'], 
+                mode: 'markers',
+                type: 'scatter', 
+                name: 'OPC N3<br>R^2 Score: ' + rawdata['params']['n3']['r2_score']})
+    shapes.push({
+        x0: rawdata['params']['n3']['x'][0],
+        y0: rawdata['params']['n3']['y'][0],
+        x1: rawdata['params']['n3']['x'][1],
+        y1: rawdata['params']['n3']['y'][1],  
+        type: 'line', 
+        name: 'AlphaSense OPC N3',
+        line: {color: 'orange'}
+            })
+
+    
+    chart.push({x: rawdata['pm2.5_grimm'],
+                y: rawdata['pm2.5_atmos'], 
+                mode: 'markers',
+                type: 'scatter', 
+                name: 'Atmos<br>R^2 Score: ' + rawdata['params']['atmos']['r2_score']})
+    shapes.push({
+        x0: rawdata['params']['atmos']['x'][0],
+        y0: rawdata['params']['atmos']['y'][0],
+        x1: rawdata['params']['atmos']['x'][1],
+        y1: rawdata['params']['atmos']['y'][1],  
+        type: 'line', 
+        name: 'Atmos',
+        line: {color: 'green'}
+            })
+
+    var OFFSET = 1
+    chart.push({x: [Math.min(...rawdata['pm2.5_grimm']) - OFFSET,Math.max(...rawdata['pm2.5_grimm']) + OFFSET],
+                y: [Math.min(...rawdata['pm2.5_grimm']) - OFFSET,Math.max(...rawdata['pm2.5_grimm']) + OFFSET], 
+                mode: 'line',
+                type: 'scatter', 
+                name: '1:1 Line',
+                line: {color: 'black'}
+                })
+
+    var layout = {
+        font: { size: 12 },
+        autosize: true,
+        width: 900,
+        height: 600,
+        xaxis: {title: 'GRIMM OPC N3 PM2.5'},
+        yaxis: {title: 'LCS PM2.5'},
+        shapes: shapes,
+        margin: {
+            t: 50, //top margin
+            l: 50, //left margin
+            r: 50, //right margin
+            b: 50 //bottom margin
+        }
+    };
+
+    var config = { responsive: true }
+    // config = {}
     Plotly.newPlot('chartcontainer', chart, layout, config);
     $('.nsewdrag').attr('style','fill: rgba(212,212,212,0.175); stroke-width: 0; pointer-events: all;');
 }

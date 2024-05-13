@@ -4,7 +4,7 @@ import os
 from datetime import datetime, timedelta
 import numpy as np
 import json
-from db_scripts import insert_df, get_table_data, get_pm_data, delete_by_filename, insert_live_data, get_latest_data
+from db_scripts import insert_df, get_table_data, get_pm_data, delete_by_filename, insert_live_data, get_latest_datapoints
 import config
 import threading
 
@@ -255,6 +255,30 @@ def __get_charting_data__(sensors: list, start: str, end: str, pm:list):
         d[sensor] = __get_sensor_charting_data__(sensor, start=start, end=end, pm=pm)
     return d
 
+def get_coefficients(df: pd.DataFrame):
+    from sklearn.linear_model import LinearRegression
+    from sklearn.metrics import r2_score
+    sensors = ['grimm', 'purpleair', 'n3', 'atmos']
+    params = {}
+    for sensor in sensors:
+        lr = LinearRegression()
+        score = r2_score(df['pm2.5_grimm'], df['pm2.5_'+sensor])
+        lr.fit(df['pm2.5_grimm'].values.reshape(-1,1),df['pm2.5_'+sensor].values.reshape(-1,1))
+        cf = float(lr.coef_[0][0])
+        ic = float(lr.intercept_[0])
+        ref_mn, ref_mx = float(df['pm2.5_grimm'].min()), float(df['pm2.5_grimm'].max())
+        params[sensor] = {'coeff':cf, 'intercept':ic, 'x':[ref_mn, ref_mx], 'y':[ref_mn*cf+ic,ref_mx*cf+ic], 'r2_score':score}
+    print(params)
+    return params
+    
+def get_regression_data():
+    PLOT_REGRESSION_FOR_ROWS = 100
+    df = get_latest_datapoints('cotimed_data', rows=PLOT_REGRESSION_FOR_ROWS)
+    params = get_coefficients(df)
+    d = df.to_dict(orient='list')
+    d['params'] = params
+    return d
+
 def get_metadata(path:str, filename: str):
     with open(os.path.join(path, 'log.json'), 'r') as f:
         metadata = json.load(f)
@@ -279,17 +303,22 @@ def process_live_input(sensor, data):
         print(data)
         # insert_live_data('live_purpleair', data['timestamp'], data['pm2.5'], data['pm1'], data['pm10'], data['location'])
 
+
+
+
+
+
 def get_live_data(sensor):
     df = {}
     if sensor == 'N3':
         table = 'live_n3'
-        df = get_latest_data(table).tail(1).to_dict(orient='records')[0]
+        df = get_latest_datapoints(table).tail(1).to_dict(orient='records')[0]
     if sensor == 'Atmos':
         table = 'live_atmos'
-        df = get_latest_data(table).tail(1).to_dict(orient='records')[0]
+        df = get_latest_datapoints(table).tail(1).to_dict(orient='records')[0]
     if sensor == 'Grimm':
         table = 'clean_grimm'
-        df = get_latest_data(table).tail(1).to_dict(orient='records')[0]
+        df = get_latest_datapoints(table).tail(1).to_dict(orient='records')[0]
     return df
 
 

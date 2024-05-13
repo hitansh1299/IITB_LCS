@@ -105,6 +105,9 @@
             <p class='text-center pb-4' id='last_update_grimm'> LAST UPDATED ON: </p>
           </div>
         </div>
+        <div class="content justify-content-center" style="display: flex; justify-content: center;">
+            <div id="chartcontainer" class="justify-content-center"></div>
+        </div>
       </div>
       <script>
         $(".chosen-select").chosen({ width: "40%" });
@@ -114,7 +117,7 @@
       </script>
       <script type="module">
         import { updateDial } from './assets/js/gauge.js';
-
+        import { create_regression_plot } from "/assets/js/charting.js"
 
         var options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
 
@@ -148,6 +151,7 @@
             updateDial(data['pm1'], 'grimm_pm1');
             updateDial(data['pm2.5'], 'grimm_pm25');
             updateDial(data['pm10'], 'grimm_pm10');
+            create_regression_plot()
           });
         }
 
@@ -157,6 +161,9 @@
         setInterval(getLiveN3, 5000);
         setInterval(getLiveAtmos, 10000);
         setInterval(getLiveGrimm, 3600000);
+
+        
+        create_regression_plot()
       </script>
 </body>
 

@@ -1,7 +1,8 @@
 import pandas as pd
 import requests
-from db_scripts import insert_live_data
+from db_scripts import insert_live_data, get_table_data, insert_df
 from datetime import datetime, timedelta
+
 def fetch_atmos_data():
     from config import ATMOS_IMEI, ATMOS_API_KEY
     import requests
@@ -58,3 +59,43 @@ def fetch_atmos_data():
         else :
             print('NO NEW DATA | RETRYING AFTER 30 SECONDS...')
             time.sleep(30)
+
+
+def update_cotimed_data() -> None:
+    last_update = {'dt_time': 'NULL'} #TODO: Fetch last update from db
+    start = '2000-01-01 00:00:00'
+    end = '2099-01-01 00:00:00'
+    purpleair = get_table_data('clean_purpleair', start=start, end=end).sort_values(by='timestamp')
+    purpleair['timestamp'] = pd.to_datetime(purpleair['timestamp'])
+    purpleair.rename(columns={'pm2.5': 'pm2.5_purpleair', 'pm10': 'pm10_purpleair', 'pm1': 'pm1_purpleair', 'location':'location_purpleair', 'filename':'filename_purpleair'}, inplace=True)
+    
+    n3 = get_table_data('clean_n3', start=start, end=end).sort_values(by='timestamp')
+    n3['timestamp'] = pd.to_datetime(n3['timestamp'])
+    n3.rename(columns={'pm2.5': 'pm2.5_n3', 'pm10': 'pm10_n3', 'pm1': 'pm1_n3', 'location':'location_n3', 'filename':'filename_n3'}, inplace=True)
+    
+    grimm = get_table_data('clean_grimm', start=start, end=end).sort_values(by='timestamp')
+    grimm['timestamp'] = pd.to_datetime(grimm['timestamp'])
+    grimm.rename(columns={'pm2.5': 'pm2.5_grimm', 'pm10': 'pm10_grimm', 'pm1': 'pm1_grimm', 'location':'location_grimm', 'filename':'filename_grimm'}, inplace=True)
+
+    atmos = get_table_data('clean_atmos', start=start, end=end).sort_values(by='timestamp')
+    atmos['timestamp'] = pd.to_datetime(atmos['timestamp'])
+    atmos.rename(columns={'pm2.5': 'pm2.5_atmos', 'pm10': 'pm10_atmos', 'pm1': 'pm1_atmos', 'location':'location_atmos', 'filename':'filename_atmos'}, inplace=True)
+
+    cotimed_data = pd.merge_asof(grimm, n3, 
+                                 on='timestamp', 
+                                 direction='nearest', 
+                                 tolerance=pd.Timedelta('3m')).dropna(subset=['pm2.5_grimm', 'pm2.5_n3', 'pm10_grimm', 'pm10_n3', 'pm1_grimm', 'pm1_n3'])
+    cotimed_data = pd.merge_asof(cotimed_data, purpleair, 
+                                 on='timestamp', 
+                                 direction='nearest', 
+                                 tolerance=pd.Timedelta('3m')).dropna(subset=['pm2.5_purpleair', 'pm10_purpleair', 'pm1_purpleair'])
+    cotimed_data = pd.merge_asof(cotimed_data, atmos, 
+                                on='timestamp', 
+                                direction='nearest', 
+                                tolerance=pd.Timedelta('3m')).dropna(subset=['pm2.5_atmos', 'pm10_atmos', 'pm1_atmos'])
+    print(cotimed_data)
+    cotimed_data.to_csv('cotimed_data.csv', index=False)
+    insert_df(cotimed_data, 'cotimed_data')
+if __name__ == '__main__':
+    # fetch_atmos_data()
+    update_cotimed_data()
