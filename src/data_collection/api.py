@@ -300,9 +300,11 @@ def process_live_input(sensor, data):
     if sensor == 'N3':
         insert_live_data('live_n3', data['timestamp'], data['pm1'], data['pm2.5'], data['pm10'], data['temperature'], data['humidity'], data['location'])
     if sensor == 'PurpleAir':
-        insert_live_data('live_purpleair', data['DateTime'], ((data['pm2_5_cf_1'] + data['pm2_5_cf_1_b'])/2), ((data['pm1_0_cf_1'] + data['pm1_0_cf_1_b'])/2), ((data['pm10_0_cf_1'] + data['pm10_0_cf_1_b'])/2),((data['current_temp_f'] - 32) * (5/9)), data['current_humidity'],'')
+        insert_live_data('live_purpleair', data['DateTime'], ((data['pm1_0_cf_1'] + data['pm1_0_cf_1_b'])/2), ((data['pm2_5_cf_1'] + data['pm2_5_cf_1_b'])/2), ((data['pm10_0_cf_1'] + data['pm10_0_cf_1_b'])/2),((data['current_temp_f'] - 32) * (5/9)), data['current_humidity'],'')
         # print(data)
         # insert_live_data('live_purpleair', data['timestamp'], data['pm2.5'], data['pm1'], data['pm10'], data['location'])
+    if sensor == 'grimm':
+        insert_live_data('live_grimm', data['timestamp'], data['pm1'], data['pm2.5'], data['pm10'], None, None, None)
 
 
 
