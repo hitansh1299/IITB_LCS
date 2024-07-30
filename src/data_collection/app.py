@@ -134,7 +134,7 @@ def view_files():
 
 @app.route('/live/<sensor>/<imei>', methods=['POST'])
 @app.route('/live/<sensor>', methods=['POST'])
-def live_input(sensor):
+def live_input(sensor, imei=None):
     from api import process_live_input
     if sensor == 'grimm':
         from api import process_file
