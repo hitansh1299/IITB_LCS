@@ -272,7 +272,7 @@ def get_coefficients(df: pd.DataFrame):
     return params
     
 def get_regression_data():
-    PLOT_REGRESSION_FOR_ROWS = 100
+    PLOT_REGRESSION_FOR_ROWS = 200
     df = get_latest_datapoints('cotimed_data', rows=PLOT_REGRESSION_FOR_ROWS)
     params = get_coefficients(df)
     d = df.to_dict(orient='list')
@@ -300,7 +300,8 @@ def process_live_input(sensor, data):
     if sensor == 'N3':
         insert_live_data('live_n3', data['timestamp'], data['pm1'], data['pm2.5'], data['pm10'], data['temperature'], data['humidity'], data['location'])
     if sensor == 'PurpleAir':
-        print(data)
+        insert_live_data('live_purpleair', data['DateTime'], ((data['pm2_5_cf_1'] + data['pm2_5_cf_1_b'])/2), ((data['pm1_0_cf_1'] + data['pm1_0_cf_1_b'])/2), ((data['pm10_0_cf_1'] + data['pm10_0_cf_1_b'])/2),((data['current_temp_f'] - 32) * (5/9)), data['current_humidity'], data['location'])
+        # print(data)
         # insert_live_data('live_purpleair', data['timestamp'], data['pm2.5'], data['pm1'], data['pm10'], data['location'])
 
 

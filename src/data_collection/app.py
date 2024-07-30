@@ -132,6 +132,7 @@ def delete_file(filename):
 def view_files():
     return render_template('filetable.html')
 
+@app.route('/live/<sensor>/<imei>', methods=['POST'])
 @app.route('/live/<sensor>', methods=['POST'])
 def live_input(sensor):
     from api import process_live_input
