@@ -136,7 +136,7 @@
           const response = await fetch('/getlive/Atmos')
           await response.json().then(data => {
             //$('#Atmos_live').text(data['pm2.5']);
-            $('#last_update_atmos').text('Last Updated On: ' + new Date(data['timestamp']).toLocaleDateString('en-US', options));
+            $('#last_update_atmos').text('Last Updated On: ' + new Date(data['timestamp'].replace('T', ' ')).toLocaleDateString('en-US', options));
             updateDial(data['pm1'], 'atmos_pm1');
             updateDial(data['pm2.5'], 'atmos_pm25');
             updateDial(data['pm10'], 'atmos_pm10');
@@ -147,7 +147,7 @@
           const response = await fetch('/getlive/Grimm')
           await response.json().then(data => {
             //$('#Grimm_live').text(data['pm2.5']);
-            $('#last_update_grimm').text('Last Updated On: ' + new Date(data['timestamp']).toLocaleDateString('en-US', options));
+            $('#last_update_grimm').text('Last Updated On: ' + new Date(data['timestamp'].replace('T', ' ')).toLocaleDateString('en-US', options));
             updateDial(data['pm1'], 'grimm_pm1');
             updateDial(data['pm2.5'], 'grimm_pm25');
             updateDial(data['pm10'], 'grimm_pm10');
