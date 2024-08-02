@@ -258,7 +258,7 @@ def __get_charting_data__(sensors: list, start: str, end: str, pm:list):
 def get_coefficients(df: pd.DataFrame):
     from sklearn.linear_model import LinearRegression
     from sklearn.metrics import r2_score
-    sensors = ['grimm', 'purpleair', 'n3', 'atmos']
+    sensors = ['grimm', 'purpleair', 'n3', 'atmos','purpleair_corrected', 'n3_corrected', 'atmos_corrected']
     params = {}
     for sensor in sensors:
         lr = LinearRegression()
@@ -272,11 +272,47 @@ def get_coefficients(df: pd.DataFrame):
     return params
     
 def get_regression_data():
-    PLOT_REGRESSION_FOR_ROWS = 200
+    from sklearn.linear_model import LinearRegression
+    import pickle
+    PLOT_REGRESSION_FOR_ROWS = 50
     df = get_latest_datapoints('cotimed_data', rows=PLOT_REGRESSION_FOR_ROWS)
+    # start = '2000-01-01 00:00:00'
+    # end = '2099-01-01 00:00:00'
+    # df_grimm = get_table_data('live_grimm', start=start, end=end)
+    # df_grimm['timestamp'] = pd.to_datetime(df_grimm['timestamp'].str.replace('T',' '))
+    # df_grimm.sort_values(by='timestamp', inplace=True)
+    # df_purpleair = get_latest_datapoints('live_purpleair', 10000)
+    # df_purpleair['timestamp'] = pd.to_datetime(df_purpleair['timestamp'].str.replace('T',' '))
+    # df_purpleair.sort_values(by='timestamp', inplace=True)
+    # df_n3 = get_latest_datapoints('live_n3', 10000)
+    # df_n3['timestamp'] = pd.to_datetime(df_n3['timestamp'].str.replace('T',' '))
+    # df_n3.sort_values(by='timestamp', inplace=True)
+    # df_atmos = get_latest_datapoints('live_atmos', 10000)
+    # df_atmos['timestamp'] = pd.to_datetime(df_atmos['timestamp'].str.replace('T',' '))
+    # df_atmos.sort_values(by='timestamp', inplace=True)
+
+    # df_cotimed_purpleair = pd.merge_asof(df_purpleair, df_grimm, on='timestamp', suffixes=('_purpleair',None,), tolerance=pd.Timedelta('2m'), direction='nearest')
+    # df_cotimed_n3 = pd.merge_asof(df_n3, df_grimm, on='timestamp', suffixes=('_n3',None,), tolerance=pd.Timedelta('2m'), direction='nearest')
+    # df_cotimed_atmos = pd.merge_asof(df_atmos, df_grimm, on='timestamp', suffixes=('_atmos',None), tolerance=pd.Timedelta('2m'), direction='nearest')
+    # # df = df.dropna(subset=['pm2.5', 'pm2.5_purpleair', 'pm2.5_n3', 'pm2.5_atmos'])
+    # # df = get_latest_datapoints()
+    purpleair_model = pickle.load(open('src/models/LR_purpleair.pkl', 'rb'))
+    n3_model = pickle.load(open('src/models/LR_n3.pkl', 'rb'))
+    atmos_model = pickle.load(open('src/models/LR_atmos.pkl', 'rb'))
+    # print(df_cotimed_purpleair)
+    # print(df_cotimed_n3)
+    # print(df_cotimed_atmos)
+    # df_cotimed_purpleair['pm2.5_purpleair_corrected'] = purpleair_model.predict(df_cotimed_purpleair['pm2.5_purpleair'].dropna().values.reshape(-1,1))
+    # df_cotimed_n3['pm2.5_n3_corrected'] = n3_model.predict(df_cotimed_n3['pm2.5_n3'].dropna().values.reshape(-1,1))
+    # df_cotimed_atmos['pm2.5_atmos_corrected'] = atmos_model.predict(df_atmos['pm2.5_atmos'].dropna().values.reshape(-1,1))
+    df['pm2.5_purpleair_corrected'] = purpleair_model.predict(df['pm2.5_purpleair'].dropna().values.reshape(-1,1))
+    df['pm2.5_n3_corrected'] = n3_model.predict(df['pm2.5_n3'].dropna().values.reshape(-1,1))
+    df['pm2.5_atmos_corrected'] = atmos_model.predict(df['pm2.5_atmos'].dropna().values.reshape(-1,1))
+    # df = pd.merge(df_cotimed_purpleair, df_cotimed_n3, on='timestamp', how='outer',suffixes=(None, None))
     params = get_coefficients(df)
     d = df.to_dict(orient='list')
     d['params'] = params
+    print(d)
     return d
 
 def get_metadata(path:str, filename: str):
@@ -304,10 +340,6 @@ def process_live_input(sensor, data):
     if sensor == 'grimm':
         print(data)
         insert_live_data('live_grimm', data['timestamp'], data['pm1'], data['pm2.5'], data['pm10'], None, None, None)
-
-
-
-
 
 
 def get_live_data(sensor):

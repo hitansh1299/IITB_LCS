@@ -95,7 +95,7 @@ def update_cotimed_data() -> None:
                                 tolerance=pd.Timedelta('3m')).dropna(subset=['pm2.5_atmos', 'pm10_atmos', 'pm1_atmos'])
     print(cotimed_data)
     cotimed_data.to_csv('cotimed_data.csv', index=False)
-    insert_df(cotimed_data, 'cotimed_data')
+    # insert_df(cotimed_data, 'cotimed_data')
 if __name__ == '__main__':
     # fetch_atmos_data()
     update_cotimed_data()

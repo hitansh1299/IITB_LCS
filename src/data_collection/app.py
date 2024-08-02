@@ -154,5 +154,5 @@ if __name__ == '__main__':
     from threading import Thread
     from async_threads import fetch_atmos_data
     Thread(target=fetch_atmos_data).start()   
-    app.run(debug=False, host=HOST, port=PORT)
+    app.run(debug=True, host=HOST, port=PORT)
 
